@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NODO | Comercio & Pagos Transfronterizos (Bolivia ↔ Global)</title>
+  
+  <!-- Tipografía Profesional: Inter y JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            shopify: {
+              green: '#008060',
+              dark: '#1A1A1A',
+              subtle: '#F6F6F7',
+              border: '#E1E3E5',
+              surface: '#FFFFFF'
+            },
+            meta: {
+              blue: '#1877F2',
+              gray: '#F0F2F5',
+              border: '#CED0D4'
+            },
+            arduino: {
+              teal: '#00979C',
+              dark: '#005C5F',
+              bg: '#171B21',
+              card: '#1F242C',
+              yellow: '#E5AD24',
+              orange: '#E47128'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & Babel Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: #F8FAFC;
+      color: #1E293B;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Estilo limpio: bordes rectos y sutiles sin sobre-redondeos */
+    .card-clean {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+    }
+    .btn-clean {
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body class="selection:bg-slate-900 selection:text-white">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useContext, createContext } = React;
+
+    // ========================================================================
+    // ICONOS SVG PROFESIONALES (TRAZOS LIMPIOS)
+    // ========================================================================
+    const SvgIcon = ({ name, className = "w-4 h-4", ...props }) => {
+      switch (name) {
+        case 'store':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 22V12h6v10"/></svg>;
+        case 'instagram':
+          return <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>;
+        case 'facebook':
+          return <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.5 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z"/></svg>;
+        case 'arduino':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><rect x="3" y="4" width="18" height="16" rx="2" strokeWidth="1.8"/><circle cx="7" cy="8" r="1.5" fill="currentColor"/><circle cx="17" cy="8" r="1.5" fill="currentColor"/><path strokeLinecap="round" strokeWidth="1.8" d="M7 14h3m-1.5-1.5v3M14 14h3"/></svg>;
+        case 'shield':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4"/></svg>;
+        case 'truck':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><rect x="1" y="3" width="15" height="13" strokeWidth="1.8"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" strokeWidth="1.8"/><circle cx="5.5" cy="18.5" r="2.5" strokeWidth="1.8"/><circle cx="18.5" cy="18.5" r="2.5" strokeWidth="1.8"/></svg>;
+        case 'card':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><rect x="1" y="4" width="22" height="16" rx="2" strokeWidth="1.8"/><line x1="1" y1="10" x2="23" y2="10" strokeWidth="1.8"/></svg>;
+        case 'check':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><polyline points="20 6 9 17 4 12" strokeWidth="2"/></svg>;
+        case 'x':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><line x1="18" y1="6" x2="6" y2="18" strokeWidth="2"/><line x1="6" y1="6" x2="18" y2="18" strokeWidth="2"/></svg>;
+        case 'whatsapp':
+          return <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>;
+        case 'terminal':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><polyline points="4 17 10 11 4 5" strokeWidth="2"/><line x1="12" y1="19" x2="20" y2="19" strokeWidth="2"/></svg>;
+        case 'share':
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="18" cy="5" r="3" strokeWidth="1.8"/><circle cx="6" cy="12" r="3" strokeWidth="1.8"/><circle cx="18" cy="19" r="3" strokeWidth="1.8"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" strokeWidth="1.8"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" strokeWidth="1.8"/></svg>;
+        default:
+          return <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="9" strokeWidth="1.8"/></svg>;
+      }
+    };
+
+    // ========================================================================
+    // CATÁLOGO DE PRODUCTOS (FOTOS REALES DE ALTA CALIDAD)
+    // ========================================================================
+    const INITIAL_PRODUCTS = [
+      {
+        id: 'prod-cafe',
+        name: 'Café Orgánico de Altura (Los Yungas)',
+        category: 'Café & Alimentos',
+        origin: 'Caranavi, La Paz • 1,750 m.s.n.m.',
+        description: 'Micro-lote lavado de estricta altura. Tueste medio artesanal con notas dulces de miel silvestre, chocolate amargo y jazmín. Calificación SCAA: 87.5.',
+        weightKg: 0.5,
+        producerName: 'Caficultores Bio-Yungas SRL',
+        targetNetBob: 480, // Productor recibe exactamente 480 BOB
+        priceUsd: 58.00,
+        shippingUsd: 16.00,
+        imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80',
+        rating: 4.9,
+        reviewsCount: 38,
+        inStock: true
+      },
+      {
+        id: 'prod-chalina',
+        name: 'Chalina Fina 100% Baby Alpaca',
+        category: 'Textil & Moda',
+        origin: 'Comunidad Textil, La Paz',
+        description: 'Tejida en telar tradicional con fibra de primera esquila (19.5 micras). Ultra suave, térmica, hipoalergénica y de extrema durabilidad sin tintes químicos.',
+        weightKg: 0.25,
+        producerName: 'Manos del Illimani Artesanías',
+        targetNetBob: 750, // Productor recibe 750 BOB
+        priceUsd: 88.00,
+        shippingUsd: 14.00,
+        imageUrl: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=700&q=80',
+        rating: 5.0,
+        reviewsCount: 52,
+        inStock: true
+      },
+      {
+        id: 'prod-singani',
+        name: 'Singani Gran Reserva Los Cumpas D.O.',
+        category: 'Vinos & Licores',
+        origin: 'Valle de Santa Ana, Tarija',
+        description: 'Destilado insignia de uva Moscatel de Alejandría con Denominación de Origen. Triple destilación en alambique de cobre tradicional. Graduación: 40% Alc.',
+        weightKg: 1.2,
+        producerName: 'Bodegas de la Sierra SRL',
+        targetNetBob: 620, // Productor recibe 620 BOB
+        priceUsd: 76.00,
+        shippingUsd: 20.00,
+        imageUrl: 'https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=700&q=80',
+        rating: 4.8,
+        reviewsCount: 29,
+        inStock: true
+      },
+      {
+        id: 'prod-cuero',
+        name: 'Bolso Artesanal Cuero Curtido Vegetal',
+        category: 'Marroquinería',
+        origin: 'Tupiza, Potosí',
+        description: 'Bolso mensajero fabricado en cuero vacuno plena flor curtido con extractos de quebracho. Herrajes de bronce macizo y costura reforzada de por vida.',
+        weightKg: 0.85,
+        producerName: 'Taller Cuero Chichas',
+        targetNetBob: 1100, // Productor recibe 1,100 BOB
+        priceUsd: 132.00,
+        shippingUsd: 22.00,
+        imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=700&q=80',
+        rating: 4.9,
+        reviewsCount: 17,
+        inStock: true
+      }
+    ];
+
+    const INITIAL_PRODUCER = {
+      businessName: 'Asociación de Caficultores Bio-Yungas SRL',
+      legalRepresentative: 'Roberto Mamani Condori',
+      ci: '4829103-LP',
+      nit: '1029384029',
+      taxRegime: 'EXPORTADOR_HABITUAL',
+      bankName: 'Banco Nacional de Bolivia (BNB)',
+      accountNumber: '150-0928371-29',
+      accountHolder: 'Roberto Mamani Condori',
+      kycStatus: 'VERIFIED',
+      totalDepositedBob: 8640,
+      inEscrowBob: 0
+    };
+
+    // ========================================================================
+    // CONTEXTO DE APLICACIÓN
+    // ========================================================================
+    const AppContext = createContext();
+
+    const AppProvider = ({ children }) => {
+      const [viewMode, setViewMode] = useState('BUYER'); // BUYER | PRODUCER | BACKOFFICE
+      const [buyerStyle, setBuyerStyle] = useState('SHOPIFY'); // SHOPIFY | SOCIAL_FEED
+      const [isArduinoDrawerOpen, setIsArduinoDrawerOpen] = useState(false);
+      const [showHowItWorks, setShowHowItWorks] = useState(false);
+
+      // Modales
+      const [checkoutProduct, setCheckoutProduct] = useState(null);
+      const [receiptOrder, setReceiptOrder] = useState(null);
+      const [taxOrder, setTaxOrder] = useState(null);
+      const [socialShareProduct, setSocialShareProduct] = useState(null);
+
+      // Estado Persistente
+      const [products, setProducts] = useState(() => {
+        const s = localStorage.getItem('nodo_v2_prods');
+        return s ? JSON.parse(s) : INITIAL_PRODUCTS;
+      });
+
+      const [orders, setOrders] = useState(() => {
+        const s = localStorage.getItem('nodo_v2_orders');
+        return s ? JSON.parse(s) : [];
+      });
+
+      const [producer, setProducer] = useState(() => {
+        const s = localStorage.getItem('nodo_v2_prod_info');
+        return s ? JSON.parse(s) : INITIAL_PRODUCER;
+      });
+
+      const [logs, setLogs] = useState(() => {
+        const s = localStorage.getItem('nodo_v2_logs');
+        return s ? JSON.parse(s) : [
+          {
+            id: 'init-1',
+            pin: 'D10_NET',
+            type: 'INFO',
+            title: 'Sistema Conectado',
+            desc: 'Stellar Testnet + API Pollar listos para operar.',
+            time: '12:00:00'
+          }
+        ];
+      });
+
+      const [marketFx, setMarketFx] = useState(10.50);
+
+      useEffect(() => {
+        localStorage.setItem('nodo_v2_prods', JSON.stringify(products));
+        localStorage.setItem('nodo_v2_orders', JSON.stringify(orders));
+        localStorage.setItem('nodo_v2_prod_info', JSON.stringify(producer));
+        localStorage.setItem('nodo_v2_logs', JSON.stringify(logs));
+      }, [products, orders, producer, logs]);
+
+      const addLog = (log) => {
+        const item = {
+          ...log,
+          id: `log_${Date.now()}`,
+          time: new Date().toLocaleTimeString('es-BO', { hour12: false })
+        };
+        setLogs(prev => [item, ...prev.slice(0, 30)]);
+      };
+
+      // 1. Proceso de Pago en USD (Comprador)
+      const submitPayment = async ({ product, buyer, cardLast4, forceDecline }) => {
+        const totalUsd = Number((product.priceUsd + product.shippingUsd).toFixed(2));
+        
+        addLog({
+          pin: 'PIN_A0_IN',
+          type: 'INFO',
+          title: `[ENTRADA USD] Cobro $${totalUsd} USD`,
+          desc: `Comprador: ${buyer.name} (${buyer.country}) vía Tarjeta Visa/Mastercard.`
+        });
+
+        await new Promise(r => setTimeout(r, 500));
+
+        if (forceDecline) {
+          addLog({
+            pin: 'PIN_ERR',
+            type: 'ERROR',
+            title: `[ERROR COBRO] Tarjeta Rechazada`,
+            desc: `El banco emisor internacional denegó la transacción por fondos o bloqueo.`
+          });
+          return { success: false, error: 'Tarjeta denegada por tu banco emisor. Prueba con el botón "Simular Pago Exitoso".' };
+        }
+
+        const authCode = `AUTH-${Math.floor(100000 + Math.random() * 900000)}`;
+        const orderId = `ORD-${Date.now().toString().slice(-5)}`;
+        const stellarHash = '0x' + Array.from({length: 48}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
+        addLog({
+          pin: 'D11_STELLAR',
+          type: 'SUCCESS',
+          title: `[ESCROW BLOQUEADO] Custodia Criptográfica`,
+          desc: `Bloqueados $${product.priceUsd} USDC en contrato Stellar. Hash: ${stellarHash.slice(0, 16)}...`
+        });
+
+        const newOrder = {
+          id: orderId,
+          date: new Date().toISOString(),
+          product,
+          totalUsd,
+          netBob: product.targetNetBob,
+          status: 'IN_ESCROW', // IN_ESCROW -> DISPATCHED -> SETTLED_BOB -> DISPUTED
+          buyer,
+          authCode,
+          cardLast4,
+          tracking: null,
+          stellarHash
+        };
+
+        setOrders(prev => [newOrder, ...prev]);
+        setProducer(p => ({ ...p, inEscrowBob: p.inEscrowBob + product.targetNetBob }));
+
+        return { success: true, order: newOrder };
+      };
+
+      // 2. Despachar Pedido (Productor)
+      const dispatchOrder = (orderId, courierName, trackingNumber) => {
+        const cleanCode = trackingNumber.trim().toUpperCase();
+        if (cleanCode.length < 5 || cleanCode === '123' || cleanCode === 'TEST') {
+          return { ok: false, msg: 'Código de rastreo inválido o muy corto. Escribe un código real como: DHL-BO-98231' };
+        }
+
+        setOrders(prev => prev.map(o => {
+          if (o.id === orderId) {
+            return {
+              ...o,
+              status: 'DISPATCHED',
+              tracking: {
+                courier: courierName,
+                code: cleanCode,
+                shippedAt: new Date().toLocaleDateString('es-BO'),
+                status: 'En tránsito aéreo internacional'
+              }
+            };
+          }
+          return o;
+        }));
+
+        addLog({
+          pin: 'D12_COURIER',
+          type: 'INFO',
+          title: `[GUÍA VALIDADA] ${courierName}: ${cleanCode}`,
+          desc: `Paquete registrado en aduana aérea de exportación (Viru Viru / El Alto).`
+        });
+
+        return { ok: true };
+      };
+
+      // 3. Confirmar Entrega y Liquidar en Banco (Pollar Off-ramp)
+      const confirmDeliveryAndSettle = async (orderId) => {
+        const ord = orders.find(o => o.id === orderId);
+        if (!ord) return;
+
+        if (producer.kycStatus !== 'VERIFIED') {
+          alert('Tu cuenta aún no está verificada. Por seguridad bancaria debes aprobar el KYC antes de depositar.');
+          return;
+        }
+
+        addLog({
+          pin: 'D13_WEBHOOK',
+          type: 'SUCCESS',
+          title: `[WEBHOOK ENTREGA] Paquete Recibido`,
+          desc: `El comprador firmó la recepción. Disparando liberación automática de fondos.`
+        });
+
+        const achRef = `ACH-${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+        addLog({
+          pin: 'D09_POLLAR',
+          type: 'SUCCESS',
+          title: `[DEPÓSITO BANCARIO] +Bs. ${ord.netBob} BOB`,
+          desc: `Transferencia ACH directa a ${producer.bankName} (Cta: ${producer.accountNumber}). Ref: ${achRef}.`
+        });
+
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'SETTLED_BOB', achRef } : o));
+        setProducer(p => ({
+          ...p,
+          totalDepositedBob: p.totalDepositedBob + ord.netBob,
+          inEscrowBob: Math.max(0, p.inEscrowBob - ord.netBob)
+        }));
+      };
+
+      // Reset
+      const resetAll = () => {
+        localStorage.clear();
+        setProducts(INITIAL_PRODUCTS);
+        setOrders([]);
+        setProducer(INITIAL_PRODUCER);
+        setMarketFx(10.50);
+        setLogs([{
+          id: 'reset',
+          pin: 'D10_NET',
+          type: 'INFO',
+          title: 'Sistema Reiniciado',
+          desc: 'Base de datos restaurada para demostración limpia.',
+          time: new Date().toLocaleTimeString('es-BO')
+        }]);
+      };
+
+      return (
+        <AppContext.Provider value={{
+          viewMode, setViewMode,
+          buyerStyle, setBuyerStyle,
+          isArduinoDrawerOpen, setIsArduinoDrawerOpen,
+          showHowItWorks, setShowHowItWorks,
+          checkoutProduct, setCheckoutProduct,
+          receiptOrder, setReceiptOrder,
+          taxOrder, setTaxOrder,
+          socialShareProduct, setSocialShareProduct,
+          products, setProducts,
+          orders,
+          producer, setProducer,
+          logs,
+          marketFx, setMarketFx,
+          submitPayment,
+          dispatchOrder,
+          confirmDeliveryAndSettle,
+          resetAll
+        }}>
+          {children}
+        </AppContext.Provider>
+      );
+    };
+
+    const useApp = () => useContext(AppContext);
+
+    // ========================================================================
+    // COMPONENTE: BARRA SUPERIOR PROFESIONAL (ESTILO SHOPIFY & META)
+    // ========================================================================
+    const TopNavbar = () => {
+      const { viewMode, setViewMode, isArduinoDrawerOpen, setIsArduinoDrawerOpen, orders, producer, setShowHowItWorks, resetAll, marketFx } = useApp();
+      const pendingOrdersCount = orders.filter(o => o.status === 'IN_ESCROW' || o.status === 'DISPATCHED').length;
+
+      return (
+        <header className="sticky top-0 z-40 bg-white border-b border-slate-200">
+          {/* Anuncio Superior Minimalista */}
+          <div className="bg-slate-900 text-slate-300 text-[11px] py-1 px-4 flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span><strong>Comercio Transfronterizo:</strong> El comprador paga en USD con tarjeta • El productor recibe en Bolivianos en su banco.</span>
+            </div>
+            <div className="hidden sm:flex items-center space-x-4">
+              <span>Tipo de Cambio Mercado: <strong className="text-emerald-400">1 USD = {marketFx.toFixed(2)} BOB</strong></span>
+              <button onClick={() => setShowHowItWorks(true)} className="text-white underline hover:text-emerald-300">
+                ¿Cómo funciona?
+              </button>
+            </div>
+          </div>
+
+          {/* Barra de Navegación Principal */}
+          <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+            
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center font-bold text-sm rounded">
+                N
+              </div>
+              <div>
+                <span className="font-extrabold text-base tracking-tight text-slate-900">NODO</span>
+                <span className="text-[10px] ml-1.5 font-medium text-slate-500 uppercase tracking-wider">Bolivia ↔ Global</span>
+              </div>
+            </div>
+
+            {/* Selector de Perfiles (Botones Cuadrados y Limpios) */}
+            <div className="flex items-center space-x-1 bg-slate-100 p-1 border border-slate-200 rounded">
+              <button
+                onClick={() => setViewMode('BUYER')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded ${
+                  viewMode === 'BUYER' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <SvgIcon name="store" className="w-3.5 h-3.5 text-slate-800" />
+                <span>1. Tienda (Comprador USD)</span>
+              </button>
+
+              <button
+                onClick={() => setViewMode('PRODUCER')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded relative ${
+                  viewMode === 'PRODUCER' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <SvgIcon name="card" className="w-3.5 h-3.5 text-emerald-700" />
+                <span>2. Productor (Banco BOB)</span>
+                {pendingOrdersCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.2 bg-emerald-600 text-white text-[10px] font-bold rounded">
+                    {pendingOrdersCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setViewMode('BACKOFFICE')}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded ${
+                  viewMode === 'BACKOFFICE' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <SvgIcon name="shield" className="w-3.5 h-3.5 text-blue-700" />
+                <span>3. Finanzas & Riesgo</span>
+              </button>
+            </div>
+
+            {/* Botón Estilo Arduino & Reset */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsArduinoDrawerOpen(true)}
+                className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded border border-slate-700 transition"
+                title="Abre la vista técnica estilo Arduino para ver los chips, pines y eventos"
+              >
+                <SvgIcon name="arduino" className="w-3.5 h-3.5 text-teal-400" />
+                <span className="hidden md:inline font-mono">Ver Motor Invisible</span>
+              </button>
+
+              <button
+                onClick={resetAll}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"
+                title="Reiniciar a datos originales"
+              >
+                <span className="text-xs">↺</span>
+              </button>
+            </div>
+
+          </div>
+        </header>
+      );
+    };
+
+    // ========================================================================
+    // MODAL EDUCATIVO: "¿CÓMO FUNCIONA PARA PERSONAS QUE NO USAN CRIPTO?"
+    // ========================================================================
+    const HowItWorksModal = () => {
+      const { showHowItWorks, setShowHowItWorks } = useApp();
+      if (!showHowItWorks) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-xl bg-white border border-slate-300 rounded shadow-lg p-6 space-y-4">
+            <div className="flex justify-between items-center border-b pb-3">
+              <h3 className="font-bold text-slate-900 text-base">¿Cómo funciona esta plataforma para gente normal?</h3>
+              <button onClick={() => setShowHowItWorks(false)}><SvgIcon name="x" className="w-5 h-5 text-slate-500" /></button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              No necesitas saber de blockchain ni dólares electrónicos. Todo se hace de forma automática para que vender al exterior sea tan fácil como cobrar por QR en Bolivia.
+            </p>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex space-x-3 p-3 bg-slate-50 border border-slate-200 rounded">
+                <span className="w-6 h-6 rounded bg-slate-900 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">1</span>
+                <div>
+                  <h4 className="font-bold text-slate-900">Tú fijas tu precio en Bolivianos (BOB)</h4>
+                  <p className="text-slate-600">Dices: "Quiero 500 Bs limpios en mi cuenta". La plataforma calcula el precio en dólares para el cliente en el extranjero.</p>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 p-3 bg-slate-50 border border-slate-200 rounded">
+                <span className="w-6 h-6 rounded bg-slate-900 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">2</span>
+                <div>
+                  <h4 className="font-bold text-slate-900">El extranjero paga con su tarjeta de crédito</h4>
+                  <p className="text-slate-600">El dinero queda en una <strong>caja de seguridad digital (garantía)</strong> para que el comprador esté tranquilo.</p>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 p-3 bg-slate-50 border border-slate-200 rounded">
+                <span className="w-6 h-6 rounded bg-slate-900 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">3</span>
+                <div>
+                  <h4 className="font-bold text-slate-900">Llevas el paquete a DHL o Correos</h4>
+                  <p className="text-slate-600">Escribes tu código de rastreo. El comprador puede ver por dónde vuela su pedido.</p>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
+                <span className="w-6 h-6 rounded bg-emerald-700 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">4</span>
+                <div>
+                  <h4 className="font-bold text-emerald-900">El cartero entrega y el dinero cae a tu banco</h4>
+                  <p className="text-emerald-800">Se deposita directamente a tu cuenta en BNB, BCP, Banco Unión o QR al tipo de cambio de mercado más alto.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setShowHowItWorks(false)}
+                className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded hover:bg-slate-800"
+              >
+                Entendido, ¡vamos a probarlo!
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // MODAL DE COMPARTIR EN REDES (INSTAGRAM / WHATSAPP / FACEBOOK)
+    // ========================================================================
+    const SocialShareModal = () => {
+      const { socialShareProduct, setSocialShareProduct } = useApp();
+      const [copied, setCopied] = useState(false);
+
+      if (!socialShareProduct) return null;
+
+      const directLink = `${window.location.origin}/pay/${socialShareProduct.id}`;
+      const waText = `¡Hola! Me interesa comprar "${socialShareProduct.name}" con envío directo a mi país. Puedes ver el enlace oficial de pago aquí: ${directLink}`;
+
+      const handleCopy = () => {
+        navigator.clipboard?.writeText(directLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white border border-slate-300 rounded shadow-xl p-5 space-y-4">
+            <div className="flex justify-between items-center border-b pb-3">
+              <span className="font-bold text-sm text-slate-900">Compartir en Redes Sociales</span>
+              <button onClick={() => setSocialShareProduct(null)}><SvgIcon name="x" className="w-4 h-4 text-slate-400" /></button>
+            </div>
+
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded flex items-center space-x-3">
+              <img src={socialShareProduct.imageUrl} className="w-12 h-12 object-cover rounded" />
+              <div className="text-xs">
+                <p className="font-bold text-slate-900">{socialShareProduct.name}</p>
+                <p className="text-slate-500">${socialShareProduct.priceUsd} USD • Envío internacional incluido</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <p className="text-slate-600">Enlace directo de cobro para pegar en tu bio de Instagram o enviar a clientes por WhatsApp:</p>
+              <div className="flex space-x-2">
+                <input type="text" readOnly value={directLink} className="flex-1 px-3 py-2 bg-slate-100 border border-slate-300 rounded font-mono text-[11px]" />
+                <button onClick={handleCopy} className="px-3 py-2 bg-slate-900 text-white font-medium rounded hover:bg-slate-800">
+                  {copied ? '¡Copiado!' : 'Copiar'}
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t pt-3 flex space-x-2 text-xs">
+              <a
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 flex items-center justify-center space-x-1.5 py-2 bg-[#25D366] text-white font-semibold rounded hover:opacity-90"
+              >
+                <SvgIcon name="whatsapp" className="w-4 h-4" />
+                <span>Enviar por WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // 1. VISTA COMPRADOR: VISUALIZACIÓN SHOPIFY & INSTAGRAM/FACEBOOK
+    // ========================================================================
+    const BuyerView = () => {
+      const { products, buyerStyle, setBuyerStyle, setCheckoutProduct, setSocialShareProduct, orders, setReceiptOrder } = useApp();
+      const [categoryFilter, setCategoryFilter] = useState('ALL');
+
+      const filtered = categoryFilter === 'ALL' 
+        ? products 
+        : products.filter(p => p.category.toLowerCase().includes(categoryFilter.toLowerCase()));
+
+      return (
+        <div className="space-y-6 pb-12">
+          
+          {/* Barra de Control de Visualización (Shopify vs Instagram) */}
+          <div className="bg-white border border-slate-200 rounded p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Vitrina de Productos de Exportación</h2>
+              <p className="text-xs text-slate-500">Diseñado para compradores extranjeros que pagan en USD con tarjeta internacional</p>
+            </div>
+
+            {/* Alternador de Diseño: Shopify vs Instagram/Facebook */}
+            <div className="flex items-center space-x-1 bg-slate-100 p-1 border border-slate-200 rounded text-xs font-medium">
+              <span className="text-slate-500 px-2 text-[11px]">Diseño:</span>
+              <button
+                onClick={() => setBuyerStyle('SHOPIFY')}
+                className={`px-3 py-1 rounded transition ${
+                  buyerStyle === 'SHOPIFY' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Tienda Online (Shopify)
+              </button>
+              <button
+                onClick={() => setBuyerStyle('SOCIAL_FEED')}
+                className={`px-3 py-1 rounded transition flex items-center space-x-1 ${
+                  buyerStyle === 'SOCIAL_FEED' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <SvgIcon name="instagram" className="w-3 h-3 text-pink-600" />
+                <span>Feed Social (Instagram/FB)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Filtros de Categoría */}
+          <div className="flex space-x-2 text-xs overflow-x-auto pb-1">
+            {['ALL', 'Café', 'Textil', 'Vinos', 'Marroquinería'].map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1.5 rounded font-medium border transition ${
+                  categoryFilter === cat 
+                    ? 'bg-slate-900 text-white border-slate-900' 
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {cat === 'ALL' ? 'Todos los Productos' : cat}
+              </button>
+            ))}
+          </div>
+
+          {/* MODO 1: ESTILO SHOPIFY (CATÁLOGO LIMPIO, FOTOGRAFÍA RECTANGULAR, BADGES) */}
+          {buyerStyle === 'SHOPIFY' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {filtered.map(p => (
+                <div key={p.id} className="card-clean flex flex-col justify-between overflow-hidden hover:border-slate-400 transition-all">
+                  <div>
+                    {/* Imagen con bordes rectos y tag de origen */}
+                    <div className="relative h-56 bg-slate-100 overflow-hidden">
+                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover hover:scale-102 transition duration-300" />
+                      <span className="absolute top-2 left-2 bg-white/90 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-sm shadow-xs border border-slate-200">
+                        {p.origin.split('•')[0]}
+                      </span>
+                    </div>
+
+                    <div className="p-4 space-y-2">
+                      <div className="flex justify-between items-center text-[11px] text-slate-500">
+                        <span>{p.category}</span>
+                        <span className="text-amber-600 font-semibold">★ {p.rating} ({p.reviewsCount})</span>
+                      </div>
+
+                      <h3 className="font-bold text-sm text-slate-900 line-clamp-1 leading-snug">{p.name}</h3>
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{p.description}</p>
+                      
+                      <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                        Productor: <strong className="text-slate-700">{p.producerName}</strong>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-2">
+                    <div className="flex justify-between items-baseline">
+                      <div>
+                        <span className="text-lg font-bold text-slate-900 font-mono">${p.priceUsd.toFixed(2)}</span>
+                        <span className="text-xs text-slate-500 font-normal"> USD</span>
+                      </div>
+                      <span className="text-xs text-slate-500">+${p.shippingUsd} DHL Aéreo</span>
+                    </div>
+
+                    <button
+                      onClick={() => setCheckoutProduct(p)}
+                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded transition flex items-center justify-center space-x-1.5"
+                    >
+                      <SvgIcon name="card" className="w-3.5 h-3.5" />
+                      <span>Comprar con Tarjeta (USD)</span>
+                    </button>
+
+                    <button
+                      onClick={() => setSocialShareProduct(p)}
+                      className="w-full py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-medium border border-slate-300 rounded transition flex items-center justify-center space-x-1"
+                    >
+                      <SvgIcon name="share" className="w-3 h-3 text-slate-500" />
+                      <span>Copiar enlace para WhatsApp / IG</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* MODO 2: ESTILO INSTAGRAM / FACEBOOK FEED */
+            <div className="max-w-xl mx-auto space-y-6">
+              {filtered.map(p => (
+                <div key={p.id} className="card-clean overflow-hidden bg-white">
+                  
+                  {/* Encabezado Perfil Social */}
+                  <div className="p-3 flex items-center justify-between border-b border-slate-100">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
+                        {p.producerName.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-bold text-xs text-slate-900 flex items-center space-x-1">
+                          <span>{p.producerName}</span>
+                          <span className="text-blue-500">✓</span>
+                        </p>
+                        <p className="text-[10px] text-slate-400">{p.origin}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-slate-400">•••</span>
+                  </div>
+
+                  {/* Imagen del Post con Tag de Precio de Instagram Shop */}
+                  <div className="relative aspect-square bg-slate-100">
+                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                    
+                    {/* Shopping Tag Flotante estilo Instagram */}
+                    <div className="absolute bottom-4 left-4 bg-slate-900/90 text-white px-3 py-1.5 rounded-sm backdrop-blur-xs flex items-center space-x-2 text-xs shadow-md">
+                      <SvgIcon name="store" className="w-3.5 h-3.5 text-emerald-400" />
+                      <div>
+                        <p className="font-bold">{p.name}</p>
+                        <p className="text-[10px] text-slate-300">${p.priceUsd} USD • Envío asegurado</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Acciones y Descripción Social */}
+                  <div className="p-4 space-y-3">
+                    <div className="flex justify-between items-center text-slate-700">
+                      <div className="flex space-x-3 text-sm">
+                        <span>❤️ {p.reviewsCount * 4 + 12}</span>
+                        <span>💬 {p.reviewsCount}</span>
+                        <button onClick={() => setSocialShareProduct(p)}>↗ Compartir</button>
+                      </div>
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        Garantía Escrow 100%
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-slate-800 space-y-1">
+                      <p>
+                        <strong className="font-bold mr-1">{p.producerName}</strong>
+                        {p.description}
+                      </p>
+                      <p className="text-slate-400 text-[11px]">📦 Envíos internacionales exprés directo a tu domicilio.</p>
+                    </div>
+
+                    {/* Botón CTA de Compra Directa */}
+                    <div className="pt-2 border-t border-slate-100 flex space-x-2">
+                      <button
+                        onClick={() => setCheckoutProduct(p)}
+                        className="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center justify-center space-x-1.5"
+                      >
+                        <SvgIcon name="card" className="w-3.5 h-3.5" />
+                        <span>Comprar Ahora (${(p.priceUsd + p.shippingUsd).toFixed(2)} USD)</span>
+                      </button>
+                      <button
+                        onClick={() => setSocialShareProduct(p)}
+                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded"
+                      >
+                        Compartir
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Mis Órdenes Recientes (Comprador) */}
+          <div className="pt-6 border-t border-slate-200 space-y-3">
+            <h3 className="font-bold text-sm text-slate-900">Mis Compras & Seguimiento de Entrega</h3>
+            {orders.length === 0 ? (
+              <p className="text-xs text-slate-400 card-clean p-4">No has simulado ninguna compra en esta sesión.</p>
+            ) : (
+              <div className="space-y-3">
+                {orders.map(o => (
+                  <div key={o.id} className="card-clean p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-mono font-bold text-xs bg-slate-100 px-2 py-0.5 rounded">{o.id}</span>
+                        <span className="font-bold text-xs text-slate-900">{o.product.name}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">Total: ${o.totalUsd} USD • Tarjeta: **** {o.cardLast4} • Destino: {o.buyer.country}</p>
+                      {o.tracking && (
+                        <p className="text-[11px] text-blue-700 font-mono mt-0.5">Guía {o.tracking.courier}: {o.tracking.code}</p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setReceiptOrder(o)}
+                        className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded"
+                      >
+                        Ver Recibo
+                      </button>
+
+                      {o.status === 'SETTLED_BOB' ? (
+                        <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">
+                          Entregado ✓
+                        </span>
+                      ) : o.status === 'DISPATCHED' ? (
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">
+                          En Tránsito Aéreo
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded">
+                          Dinero Seguro en Garantía
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // 2. VISTA PRODUCTOR BOLIVIANO: SIMPLE, DIRECTA Y SIN JERGA
+    // ========================================================================
+    const ProducerView = () => {
+      const { producer, setProducer, orders, marketFx, setMarketFx, dispatchOrder, confirmDeliveryAndSettle, setTaxOrder } = useApp();
+      const [prodTab, setProdTab] = useState('ORDERS'); // ORDERS | CALCULATOR | BANK_KYC
+      const [targetBobInput, setTargetBobInput] = useState(500);
+
+      // Despacho formulario
+      const [activeDispatchId, setActiveDispatchId] = useState(null);
+      const [courier, setCourier] = useState('DHL Express');
+      const [trackingCode, setTrackingCode] = useState('DHL-BO-98231');
+      const [dispatchErr, setDispatchErr] = useState(null);
+
+      // Cálculo Inverso Fácil de entender
+      const netUsdNeeded = targetBobInput / marketFx;
+      const finalPriceForForeigner = Number(((netUsdNeeded + 0.30) / (1 - 0.069)).toFixed(2));
+      const officialBankEquiv = Number((netUsdNeeded * 6.96).toFixed(2));
+      const extraGainedBob = Number((targetBobInput - officialBankEquiv).toFixed(2));
+
+      const handleConfirmShip = (orderId) => {
+        setDispatchErr(null);
+        const res = dispatchOrder(orderId, courier, trackingCode);
+        if (!res.ok) {
+          setDispatchErr(res.msg);
+        } else {
+          setActiveDispatchId(null);
+        }
+      };
+
+      return (
+        <div className="space-y-6 pb-12">
+          
+          {/* Tarjeta de Resumen Financiero del Productor */}
+          <div className="card-clean p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Exportador Acreditado</span>
+                <h2 className="text-lg font-bold text-slate-900">{producer.businessName}</h2>
+                <p className="text-xs text-slate-500">Titular: {producer.legalRepresentative} • NIT: {producer.nit}</p>
+              </div>
+
+              <div className="text-right text-xs">
+                <span className="text-slate-400 block text-[11px]">Cuenta para tus abonos en Bolivia:</span>
+                <span className="font-bold text-slate-800">{producer.bankName}</span>
+                <span className="font-mono text-slate-500 block text-[11px]">Cta: {producer.accountNumber}</span>
+              </div>
+            </div>
+
+            {/* 3 Métricas Claras */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded">
+                <span className="font-bold text-emerald-900 block text-[11px]">Dinero Cobrado en tu Banco</span>
+                <p className="text-xl font-bold font-mono text-emerald-950 mt-1">Bs. {producer.totalDepositedBob.toFixed(2)}</p>
+                <p className="text-[10px] text-emerald-700">Fondos libres acreditados en tu cuenta</p>
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded">
+                <span className="font-bold text-amber-900 block text-[11px]">En Garantía (Esperando entrega)</span>
+                <p className="text-xl font-bold font-mono text-amber-950 mt-1">Bs. {producer.inEscrowBob.toFixed(2)}</p>
+                <p className="text-[10px] text-amber-700">Se depositan apenas el cartero entregue</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded">
+                <span className="font-bold text-slate-700 block text-[11px]">Tipo de Cambio Aplicado</span>
+                <p className="text-xl font-bold font-mono text-slate-900 mt-1">{marketFx.toFixed(2)} BOB/USD</p>
+                <p className="text-[10px] text-emerald-700 font-semibold">+50.8% más que al oficial (6.96)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Subpestañas del Productor */}
+          <div className="flex border-b border-slate-200 text-xs font-semibold space-x-4">
+            <button
+              onClick={() => setProdTab('ORDERS')}
+              className={`pb-2.5 border-b-2 transition ${
+                prodTab === 'ORDERS' ? 'border-slate-900 text-slate-900 font-bold' : 'border-transparent text-slate-500'
+              }`}
+            >
+              1. Envíos y Cobros Pendientes
+            </button>
+            <button
+              onClick={() => setProdTab('CALCULATOR')}
+              className={`pb-2.5 border-b-2 transition ${
+                prodTab === 'CALCULATOR' ? 'border-slate-900 text-slate-900 font-bold' : 'border-transparent text-slate-500'
+              }`}
+            >
+              2. Calculadora Fácil de Ganancias
+            </button>
+            <button
+              onClick={() => setProdTab('BANK_KYC')}
+              className={`pb-2.5 border-b-2 transition ${
+                prodTab === 'BANK_KYC' ? 'border-slate-900 text-slate-900 font-bold' : 'border-transparent text-slate-500'
+              }`}
+            >
+              3. Mi Cuenta de Banco y Documentos
+            </button>
+          </div>
+
+          {/* Subpestaña 1: Envíos y Cobros */}
+          {prodTab === 'ORDERS' && (
+            <div className="space-y-4 text-xs">
+              {orders.length === 0 ? (
+                <div className="card-clean p-8 text-center text-slate-400">
+                  No hay pedidos pendientes. Pasa a la "Vista Tienda" arriba y haz una compra de prueba.
+                </div>
+              ) : (
+                orders.map(o => (
+                  <div key={o.id} className="card-clean p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-900">#{o.id}</span>
+                          <span className="font-bold text-slate-900 text-sm">{o.product.name}</span>
+                        </div>
+                        <p className="text-slate-500 text-[11px] mt-0.5">Comprador: {o.buyer.name} ({o.buyer.country})</p>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setTaxOrder(o)}
+                          className="px-2.5 py-1 bg-white border border-slate-300 text-slate-700 font-medium rounded hover:bg-slate-50"
+                        >
+                          Factura SIN
+                        </button>
+
+                        {o.status === 'SETTLED_BOB' ? (
+                          <span className="px-2 py-1 bg-emerald-100 text-emerald-800 font-bold rounded">
+                            Depositado en tu banco: +Bs. {o.netBob}
+                          </span>
+                        ) : o.status === 'DISPATCHED' ? (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 font-bold rounded">
+                            En camino por DHL
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-amber-100 text-amber-800 font-bold rounded">
+                            Cobrado en USA ($ {o.totalUsd}) • Listo para enviar
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Despacho */}
+                    {o.status === 'IN_ESCROW' && (
+                      activeDispatchId !== o.id ? (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded flex justify-between items-center text-amber-900">
+                          <span>El cliente ya pagó. Entrega la caja a la empresa de envíos y registra la guía aquí.</span>
+                          <button
+                            onClick={() => { setActiveDispatchId(o.id); setTrackingCode(`DHL-BO-${Math.floor(10000+Math.random()*90000)}`); }}
+                            className="px-3 py-1.5 bg-slate-900 text-white font-bold rounded hover:bg-slate-800"
+                          >
+                            Registrar Guía de Envío
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-white border border-slate-300 rounded space-y-2">
+                          <p className="font-bold text-slate-800 text-[11px]">Datos de la Guía Aérea:</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <select value={courier} onChange={e => setCourier(e.target.value)} className="p-2 border rounded bg-slate-50">
+                              <option value="DHL Express">DHL Express</option>
+                              <option value="FedEx International">FedEx International</option>
+                              <option value="Correos de Bolivia (EMS)">Correos de Bolivia (EMS)</option>
+                            </select>
+                            <input
+                              type="text"
+                              value={trackingCode}
+                              onChange={e => setTrackingCode(e.target.value)}
+                              placeholder="Ej: DHL-BO-98231"
+                              className="p-2 border rounded font-mono font-bold"
+                            />
+                          </div>
+                          {dispatchErr && <p className="text-red-600 text-[11px]">{dispatchErr}</p>}
+                          <div className="flex justify-end space-x-2">
+                            <button onClick={() => setActiveDispatchId(null)} className="px-3 py-1 text-slate-500">Cancelar</button>
+                            <button onClick={() => handleConfirmShip(o.id)} className="px-3 py-1 bg-slate-900 text-white font-bold rounded">
+                              Confirmar Envío
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    )}
+
+                    {/* Simular Entrega */}
+                    {o.status === 'DISPATCHED' && (
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded flex justify-between items-center text-blue-900">
+                        <span>Guía: <strong>{o.tracking.courier} ({o.tracking.code})</strong></span>
+                        <button
+                          onClick={() => confirmDeliveryAndSettle(o.id)}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded shadow-xs"
+                        >
+                          Simular que el cartero ya entregó (Cobrar Ahora)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Subpestaña 2: Calculadora Fácil */}
+          {prodTab === 'CALCULATOR' && (
+            <div className="card-clean p-5 space-y-5 text-xs">
+              <div className="bg-slate-900 text-white p-4 rounded space-y-1">
+                <span className="text-[10px] bg-emerald-400 text-slate-900 font-bold px-2 py-0.5 rounded">Ganas +50.8% más</span>
+                <h3 className="text-base font-bold">Cobras Bs. {targetBobInput} íntegros en tu banco</h3>
+                <p className="text-slate-300 text-[11px]">
+                  En un banco tradicional al tipo oficial (6.96) solo recibirías Bs. {officialBankEquiv}. ¡Usando esta pasarela ganas <strong className="text-emerald-300">+Bs. {extraGainedBob} extra</strong> en tu bolsillo!
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <label className="font-bold text-slate-800 block">¿Cuántos Bolivianos líquidos exactos quieres recibir?</label>
+                  <input
+                    type="number"
+                    step="50"
+                    value={targetBobInput}
+                    onChange={e => setTargetBobInput(parseFloat(e.target.value) || 0)}
+                    className="w-full text-2xl font-bold font-mono p-3 border border-slate-300 rounded bg-slate-50 text-slate-900"
+                  />
+                  <p className="text-slate-400 text-[11px]">Tú no pagas comisión de tu bolsillo; se le suma automáticamente al comprador.</p>
+                </div>
+
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded space-y-2">
+                  <span className="font-bold text-slate-500 uppercase text-[10px]">Precio que verá el comprador en el extranjero:</span>
+                  <p className="text-3xl font-bold font-mono text-slate-900">${finalPriceForForeigner} <span className="text-xs font-normal text-slate-500">USD</span></p>
+                  
+                  <div className="pt-2 border-t border-slate-200 space-y-1 text-slate-600 text-[11px]">
+                    <div className="flex justify-between"><span>Comisión de tarjeta (3.9% + $0.30):</span><span>${(finalPriceForForeigner * 0.039 + 0.30).toFixed(2)} USD</span></div>
+                    <div className="flex justify-between"><span>Comisión de la plataforma (3%):</span><span>${(finalPriceForForeigner * 0.03).toFixed(2)} USD</span></div>
+                    <div className="flex justify-between font-bold text-emerald-800 border-t pt-1">
+                      <span>Tu abono neto en banco:</span>
+                      <span>Bs. {targetBobInput.toFixed(2)} BOB</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Subpestaña 3: Banco y KYC */}
+          {prodTab === 'BANK_KYC' && (
+            <div className="card-clean p-5 space-y-4 text-xs">
+              <div className="flex justify-between items-center border-b pb-3">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">Datos Bancarios para tus Abonos</h3>
+                  <p className="text-slate-500">El titular debe ser idéntico al carnet de identidad para cumplir con normas ASFI</p>
+                </div>
+                <button
+                  onClick={() => setProducer(p => ({ ...p, kycStatus: p.kycStatus === 'VERIFIED' ? 'UNDER_REVIEW' : 'VERIFIED' }))}
+                  className="px-3 py-1 border rounded text-xs font-semibold"
+                >
+                  {producer.kycStatus === 'VERIFIED' ? 'Probar modo "No Verificado"' : 'Aprobar KYC'}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-slate-500 mb-1">Razón Social</label><input type="text" readOnly value={producer.businessName} className="w-full p-2 bg-slate-50 border rounded" /></div>
+                <div><label className="block text-slate-500 mb-1">NIT</label><input type="text" readOnly value={producer.nit} className="w-full p-2 bg-slate-50 border rounded font-mono" /></div>
+                <div><label className="block text-slate-500 mb-1">Titular de la Cuenta</label><input type="text" readOnly value={producer.accountHolder} className="w-full p-2 bg-slate-50 border rounded font-bold" /></div>
+                <div><label className="block text-slate-500 mb-1">Banco Nacional</label><input type="text" readOnly value={producer.bankName} className="w-full p-2 bg-slate-50 border rounded" /></div>
+              </div>
+
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded text-emerald-900">
+                ✓ Documento de identidad y cuenta bancaria verificados. Los bolivianos se depositan automáticamente.
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // 3. VISTA BACKOFFICE: FINANZAS Y RESOLUCIÓN DE RECLAMOS
+    // ========================================================================
+    const BackofficeView = () => {
+      const { orders } = useApp();
+
+      return (
+        <div className="space-y-6 pb-12 text-xs">
+          <div className="card-clean p-5 space-y-4">
+            <h2 className="font-bold text-base text-slate-900">Mesa de Finanzas y Control de Tiempos</h2>
+            <p className="text-slate-500">Cómo se concilia el dinero que tarda 48h en llegar de la tarjeta de USA con el abono instantáneo en Bolivia</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
+                <span className="font-bold text-slate-700 uppercase text-[10px]">Paso 1: Cobro en USA</span>
+                <p className="font-bold text-slate-900">Compensación 48-72h</p>
+                <p className="text-slate-500 text-[11px]">Visa/Mastercard transfieren los dólares a la cuenta recaudadora.</p>
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded space-y-1">
+                <span className="font-bold text-amber-800 uppercase text-[10px]">Paso 2: Caja de Garantía</span>
+                <p className="font-bold text-amber-950">Garantía Escrow (90% + 10%)</p>
+                <p className="text-amber-800 text-[11px]">Se libera al confirmar entrega. 10% de reserva cubre posibles contracargos.</p>
+              </div>
+
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded space-y-1">
+                <span className="font-bold text-emerald-800 uppercase text-[10px]">Paso 3: Abono Local</span>
+                <p className="font-bold text-emerald-950">Instantáneo en Segundos</p>
+                <p className="text-emerald-800 text-[11px]">Vía API Pollar directa al banco boliviano del productor.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card-clean p-5 space-y-3">
+            <h3 className="font-bold text-sm text-slate-900">Historial de Transacciones Registradas</h3>
+            {orders.length === 0 ? (
+              <p className="text-slate-400">Sin movimientos registrados aún.</p>
+            ) : (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b text-slate-400 text-[10px] uppercase font-bold">
+                    <th className="py-2">Orden</th>
+                    <th className="py-2">Comprador</th>
+                    <th className="py-2">Monto USD</th>
+                    <th className="py-2">Abono BOB</th>
+                    <th className="py-2">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-mono">
+                  {orders.map(o => (
+                    <tr key={o.id}>
+                      <td className="py-2 font-bold">{o.id}</td>
+                      <td className="py-2 font-sans">{o.buyer.name}</td>
+                      <td className="py-2">${o.totalUsd}</td>
+                      <td className="py-2 text-emerald-700 font-bold">Bs. {o.netBob}</td>
+                      <td className="py-2 font-sans font-medium text-[11px]">
+                        {o.status === 'SETTLED_BOB' ? 'Depositado ✓' : o.status === 'DISPATCHED' ? 'En Envío' : 'En Garantía'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // 4. DRAWER ESTILO ARDUINO / INGENIERÍA TÉCNICA (MOTOR INVISIBLE)
+    // ========================================================================
+    const ArduinoEngineDrawer = () => {
+      const { isArduinoDrawerOpen, setIsArduinoDrawerOpen, logs, producer } = useApp();
+
+      if (!isArduinoDrawerOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 overflow-hidden font-mono text-xs">
+          <div onClick={() => setIsArduinoDrawerOpen(false)} className="absolute inset-0 bg-slate-950/70" />
+
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-6">
+            <div className="w-screen max-w-2xl bg-[#171B21] text-slate-200 border-l border-teal-900 shadow-2xl flex flex-col">
+              
+              {/* Header Estilo Arduino IDE / Hardware Datasheet */}
+              <div className="p-4 bg-[#0F1318] border-b border-teal-900/60 flex justify-between items-center text-teal-400">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping"></span>
+                  <span className="font-bold text-sm">ARDUINO CORE • MOTOR INVISIBLE TESTNET</span>
+                  <span className="text-[10px] bg-teal-950 px-2 py-0.5 rounded border border-teal-700/50">115200 BAUD</span>
+                </div>
+                <button onClick={() => setIsArduinoDrawerOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              {/* Esquema en Bloques de Hardware / Pines */}
+              <div className="p-4 bg-[#1F242C] border-b border-slate-800 space-y-2">
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Diagrama de Pines Lógicos:</p>
+                <div className="grid grid-cols-4 gap-2 text-[10px] text-center">
+                  <div className="p-2 bg-[#171B21] border border-slate-700 rounded text-blue-400">
+                    <span className="block font-bold">PIN_A0</span>
+                    <span className="text-[9px] text-slate-500">Stripe USD</span>
+                  </div>
+                  <div className="p-2 bg-[#171B21] border border-teal-800 rounded text-teal-400">
+                    <span className="block font-bold">MCU_D11</span>
+                    <span className="text-[9px] text-slate-500">Stellar USDC</span>
+                  </div>
+                  <div className="p-2 bg-[#171B21] border border-amber-800 rounded text-amber-400">
+                    <span className="block font-bold">INT_D12</span>
+                    <span className="text-[9px] text-slate-500">DHL Hook</span>
+                  </div>
+                  <div className="p-2 bg-[#171B21] border border-emerald-800 rounded text-emerald-400">
+                    <span className="block font-bold">RELAY_D09</span>
+                    <span className="text-[9px] text-slate-500">Pollar BOB</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monitor Serie con Streaming de Eventos */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                <p className="text-[10px] text-slate-500 pb-1 border-b border-slate-800">
+                  COM3 SERIAL MONITOR (Salida de Eventos en Tiempo Real):
+                </p>
+                {logs.map(l => (
+                  <div key={l.id} className="p-2.5 bg-[#0F1318] border border-slate-800/80 rounded space-y-0.5">
+                    <div className="flex justify-between text-[10px] text-slate-400">
+                      <span className="text-teal-400 font-bold">[{l.pin}]</span>
+                      <span>{l.time}</span>
+                    </div>
+                    <p className="font-bold text-white text-[11px]">{l.title}</p>
+                    <p className="text-slate-400 text-[11px] font-sans">{l.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="p-3 bg-[#0F1318] border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
+                <span>Stellar Horizon SCP: OK • Fee: 0.00001 XLM</span>
+                <button onClick={() => setIsArduinoDrawerOpen(false)} className="px-3 py-1 bg-slate-800 text-white rounded">
+                  Cerrar Consola
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // MODAL DE CHECKOUT EN USD (COMPRADOR)
+    // ========================================================================
+    const CheckoutModal = () => {
+      const { checkoutProduct, setCheckoutProduct, submitPayment } = useApp();
+      const [name, setName] = useState('Michael Vance');
+      const [country, setCountry] = useState('Estados Unidos (USA)');
+      const [address, setAddress] = useState('452 Market St, San Francisco');
+      const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
+      const [isBusy, setIsBusy] = useState(false);
+      const [err, setErr] = useState(null);
+
+      if (!checkoutProduct) return null;
+
+      const totalUsd = Number((checkoutProduct.priceUsd + checkoutProduct.shippingUsd).toFixed(2));
+
+      const handlePay = async (forceDecline) => {
+        setIsBusy(true);
+        setErr(null);
+        try {
+          const res = await submitPayment({
+            product: checkoutProduct,
+            buyer: { name, country, address },
+            cardLast4: forceDecline ? '0002' : '4242',
+            forceDecline
+          });
+          if (!res.success) {
+            setErr(res.error);
+          } else {
+            setCheckoutProduct(null);
+          }
+        } finally {
+          setIsBusy(false);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs text-xs">
+          <div className="w-full max-w-lg bg-white border border-slate-300 rounded shadow-xl overflow-hidden">
+            <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
+              <span className="font-bold">Pago Seguro con Tarjeta Internacional</span>
+              <button onClick={() => setCheckoutProduct(null)}>✕</button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="flex justify-between items-center p-3 bg-slate-50 border rounded">
+                <div>
+                  <h4 className="font-bold text-slate-900">{checkoutProduct.name}</h4>
+                  <p className="text-slate-500">${checkoutProduct.priceUsd} USD + ${checkoutProduct.shippingUsd} USD flete DHL</p>
+                </div>
+                <span className="font-bold text-base text-slate-900">${totalUsd} USD</span>
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-bold block text-slate-700">1. Nombre y Dirección de Entrega:</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 border rounded" placeholder="Nombre Completo" />
+                <input type="text" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded" placeholder="País" />
+                <input type="text" value={address} onChange={e => setAddress(e.target.value)} className="w-full p-2 border rounded" placeholder="Dirección" />
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-bold block text-slate-700">2. Datos de Tarjeta Internacional:</label>
+                <div className="p-3 bg-slate-900 text-white rounded font-mono space-y-2">
+                  <input type="text" value={cardNumber} onChange={e => setCardNumber(e.target.value)} className="w-full bg-slate-800 p-2 rounded text-emerald-400 font-bold" />
+                  <div className="grid grid-cols-2 gap-2 text-center text-slate-300">
+                    <input type="text" value="11/28" readOnly className="bg-slate-800 p-1.5 rounded" />
+                    <input type="password" value="892" readOnly className="bg-slate-800 p-1.5 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {err && <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 rounded font-medium">{err}</div>}
+
+              <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-900">
+                🛡️ <strong>Garantía Protegida:</strong> Tu dinero queda en custodia segura hasta que DHL entregue en tu puerta.
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t flex justify-between items-center gap-2">
+              <div className="flex space-x-2">
+                <button
+                  disabled={isBusy}
+                  onClick={() => handlePay(false)}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded"
+                >
+                  {isBusy ? 'Procesando...' : `Simular Pago Exitoso ($${totalUsd} USD)`}
+                </button>
+                <button
+                  disabled={isBusy}
+                  onClick={() => handlePay(true)}
+                  className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-800 font-semibold rounded"
+                >
+                  Simular Rechazo
+                </button>
+              </div>
+              <button onClick={() => setCheckoutProduct(null)} className="text-slate-400 hover:text-slate-700">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // MODAL DE FACTURAS SIN (BOLIVIA)
+    // ========================================================================
+    const TaxInvoiceModal = () => {
+      const { taxOrder, setTaxOrder, producer } = useApp();
+      if (!taxOrder) return null;
+
+      const equivBob = (taxOrder.totalUsd * 6.96).toFixed(2);
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs text-xs">
+          <div className="w-full max-w-2xl bg-white border border-slate-300 rounded shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
+              <span className="font-bold">Factura Comercial de Exportación (Tasa Cero IVA)</span>
+              <button onClick={() => setTaxOrder(null)}>✕</button>
+            </div>
+
+            <div className="overflow-y-auto p-6 space-y-4 text-slate-800" id="print-area">
+              <div className="border p-4 rounded space-y-3 font-sans">
+                <div className="flex justify-between border-b pb-3">
+                  <div>
+                    <h4 className="font-bold text-sm">{producer.businessName}</h4>
+                    <p className="text-slate-500 text-[11px]">Casa Matriz: La Paz, Bolivia • NIT: {producer.nit}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-emerald-800">TASA CERO IVA (LEY 843)</p>
+                    <p className="text-[11px] font-mono">FAC-EXP-{taxOrder.id}</p>
+                  </div>
+                </div>
+
+                <div className="p-2 bg-slate-50 border rounded text-[10px] font-mono break-all text-slate-600">
+                  CUF: 1029384029B0F9A4819238491C82390192834019283401928340192834019283
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 rounded text-[11px]">
+                  <div>
+                    <strong>Importador Extranjero:</strong>
+                    <p>{taxOrder.buyer.name} ({taxOrder.buyer.country})</p>
+                  </div>
+                  <div>
+                    <strong>Fecha de Emisión:</strong>
+                    <p>{new Date(taxOrder.date).toLocaleDateString('es-BO')}</p>
+                  </div>
+                </div>
+
+                <table className="w-full text-left text-[11px]">
+                  <thead>
+                    <tr className="border-b font-bold uppercase text-slate-400">
+                      <th className="py-1">Producto</th>
+                      <th className="py-1 text-right">FOB USD</th>
+                      <th className="py-1 text-right">Flete USD</th>
+                      <th className="py-1 text-right">Total USD</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="py-2">{taxOrder.product.name}</td>
+                      <td className="py-2 text-right">${taxOrder.product.priceUsd}</td>
+                      <td className="py-2 text-right">${taxOrder.product.shippingUsd}</td>
+                      <td className="py-2 text-right font-bold">${taxOrder.totalUsd}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div className="flex justify-between items-center pt-2 border-t">
+                  <p className="text-[10px] text-emerald-800 font-bold">EXENTO DE DÉBITO FISCAL POR EXPORTACIÓN DEFINITIVA</p>
+                  <p className="font-mono text-xs">Equivalente Oficial (TC 6.96): <strong>Bs. {equivBob} BOB</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 border-t flex justify-end space-x-2">
+              <button onClick={() => window.print()} className="px-3 py-1.5 bg-slate-200 text-slate-800 font-medium rounded">Imprimir</button>
+              <button onClick={() => setTaxOrder(null)} className="px-4 py-1.5 bg-slate-900 text-white font-bold rounded">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // COMPONENTE PRINCIPAL APP
+    // ========================================================================
+    const App = () => {
+      const { viewMode } = useApp();
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          <TopNavbar />
+
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 pt-6">
+            {viewMode === 'BUYER' && <BuyerView />}
+            {viewMode === 'PRODUCER' && <ProducerView />}
+            {viewMode === 'BACKOFFICE' && <BackofficeView />}
+          </main>
+
+          <ArduinoEngineDrawer />
+          <HowItWorksModal />
+          <SocialShareModal />
+          <CheckoutModal />
+          <TaxInvoiceModal />
+
+          <footer className="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+            <p className="font-semibold text-slate-800">NODO | Pasarela Transfronteriza de Pagos & E-commerce</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">Compatible con Apache Server / XAMPP / WampServer • Estándar Shopify & Meta Commerce</p>
+          </footer>
+        </div>
+      );
+    };
+
+    // Renderizado
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+  </script>
+</body>
+</html>
