@@ -1,7 +1,24 @@
-# NODO | Pasarela de Pagos & E-commerce Transfronterizo
+# NODES | Pasarela de Pagos & E-commerce Transfronterizo
 ### Conectando Productores Bolivianos con Compradores Internacionales
 
 > Prototipo interactivo, simulador end-to-end y arquitectura de referencia para una pasarela de pagos fintech transfronteriza inspirada en el modelo de **Mesa de Pagos** ([mesadepagos.com](https://mesadepagos.com/es/about)).
+
+---
+
+## Paleta Oficial de Marca (NODES)
+
+| Color | Hex / Valor | Proporción | Rol / Propósito |
+| :--- | :--- | :--- | :--- |
+| **Midnight** | `#0A0E1A` | 55% - 60% | Fondo principal / Seguridad / Navbar & Modales |
+| **White** | `#FFFFFF` | 20% - 25% | Textos principales / Fondos claros / Tarjetas |
+| **Silver** | `#A5B1C2` | 10% - 15% | Textos secundarios / Bordes sutiles / Confianza |
+| **Cyan** | `#00F0FF` | 5% - 10% | Acentos / CTA / Indicadores en vivo / Tecnología |
+| **Surface Dark** | `#12182B` | — | Tarjetas y contenedores oscuros (Motor Invisible) |
+| **Surface Light**| `#F4F7FA` | — | Contenedores y campos de formulario claros |
+| **Cyan Text** | `#007A8C` | — | Cian oscuro de alto contraste para enlaces sobre fondo claro |
+| **Success** | `#10B981` | — | Liquidación bancaria aprobada / KYC verificado |
+| **Warning** | `#F59E0B` | — | Fondos en Escrow / En tránsito |
+| **Error** | `#EF4444` | — | Disputa abierta / Pago rechazado |
 
 ---
 
@@ -122,18 +139,20 @@ flowchart LR
 
 ## 5. Instrucciones de Ejecución
 
-### Opción 1: Ejecutar directamente en el Navegador (Sin dependencias)
-Simplemente haz doble clic en `index.html` o ábrelo con Google Chrome, Microsoft Edge o Firefox.
+### Opción 1: Ejecutar en Apache / XAMPP / WampServer (Recomendado para Producción Local)
+1. Copia o enlaza esta carpeta dentro del directorio raíz de tu servidor web (ej. `C:\xampp\htdocs\nodo`).
+2. Ejecuta el asistente automático:
+   ```cmd
+   iniciar_apache.bat
+   ```
+3. O abre tu navegador en `http://localhost/nodo/` (el archivo `.htaccess` ya incluye configuración para CORS, compresión Gzip, mod_rewrite y caché).
 
-### Opción 2: Servidor Local con Python
+### Opción 2: Ejecutar directamente en el Navegador (Sin servidor ni dependencias)
+Simplemente haz doble clic en `index.html` o arrástralo a Google Chrome, Microsoft Edge, Brave o Firefox. Funciona de inmediato con todas las librerías CDN cargadas.
+
+### Opción 3: Servidor Local con Python
 Ejecuta en la terminal:
 ```bash
 python start_server.py
 ```
 El script iniciará el servidor HTTP y abrirá automáticamente tu navegador en `http://localhost:8000/index.html`.
-
-### Opción 3: Modo Vite / Node.js (Si cuentas con Node en tu entorno)
-```bash
-npm install
-npm run dev
-```
