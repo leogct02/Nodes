@@ -1,0 +1,2690 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NODES | Comercio & Pagos Transfronterizos Bolivia ↔ Global</title>
+  <link rel="icon" type="image/png" href="./assets/isotipo.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            // === PALETA OFICIAL DE MARCA NODES ===
+            nodes: {
+              midnight: '#0A0E1A',
+              white: '#FFFFFF',
+              silver: '#A5B1C2',
+              cyan: {
+                DEFAULT: '#00F0FF',
+                hover: '#33F3FF',
+                text: '#007A8C',
+              },
+              surface: {
+                dark: '#12182B',
+                light: '#F4F7FA',
+              },
+              border: {
+                dark: 'rgba(165, 177, 194, 0.18)',
+                light: '#E2E8F0',
+              }
+            },
+            status: {
+              success: '#10B981',
+              warning: '#F59E0B',
+              error: '#EF4444'
+            },
+            // Mapeo retrocompatible
+            nodo: {
+              blue: '#007A8C',
+              cyan: '#00F0FF',
+              dark: '#0A0E1A',
+              surface: '#F4F7FA'
+            },
+            arduino: {
+              teal: '#00F0FF',
+              dark: '#0A0E1A',
+              bg: '#0A0E1A',
+              card: '#12182B',
+              yellow: '#F59E0B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      /* === PALETA OFICIAL DE MARCA (NODES) === */
+      --nodes-midnight: #0A0E1A;       /* 55% - 60% | Fondo principal / Seguridad */
+      --nodes-white: #FFFFFF;          /* 20% - 25% | Textos principales / Fondos claros */
+      --nodes-silver: #A5B1C2;         /* 10% - 15% | Textos secundarios / Bordes / Confianza */
+      --nodes-cyan: #00F0FF;           /* 5% - 10%  | Acentos / CTA / Tecnología */
+
+      /* === VARIANTES DE INTERFAZ (UI) === */
+      --nodes-surface-dark: #12182B;   /* Tarjetas y contenedores sobre modo oscuro */
+      --nodes-surface-light: #F4F7FA;  /* Tarjetas y campos de formulario en modo claro */
+      --nodes-border-dark: rgba(165, 177, 194, 0.18);
+      --nodes-cyan-hover: #33F3FF;     /* Estado hover en fondo oscuro */
+      --nodes-cyan-text-light: #007A8C;/* Cian oscuro legible para enlaces sobre fondo blanco */
+
+      /* === DEGRADADOS PROGRESIVOS === */
+      --gradient-brand-dark: linear-gradient(135deg, #00F0FF 0%, #5CE1E6 50%, #A5B1C2 100%);
+      --gradient-brand-light: linear-gradient(135deg, #0A0E1A 0%, #006B8F 55%, #00C4D4 100%);
+      --gradient-bg-hero: linear-gradient(180deg, #0A0E1A 0%, #11192E 100%);
+
+      /* === ESTADOS FUNCIONALES (ESCROW Y PAGOS) === */
+      --status-success: #10B981;       /* Pago liberado / Tracking verificado */
+      --status-warning: #F59E0B;       /* Fondos retenidos en Escrow / En tránsito */
+      --status-error: #EF4444;         /* Disputa / Pago rechazado */
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #FFFFFF;
+      color: var(--nodes-midnight);
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+    }
+
+    /* ===== PATTERN BACKGROUND (CIAN SUAVE EN MOVIMIENTO) ===== */
+    .hero-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2300F0FF' stroke-width='0.7' opacity='0.08'%3E%3Ccircle cx='40' cy='40' r='12'/%3E%3Cpath d='M20 10l5 8h-10z'/%3E%3Crect x='55' y='10' width='10' height='10' rx='2'/%3E%3Cpath d='M10 55h10M15 50v10'/%3E%3Cpath d='M60 60l8-4-8-4z'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 80px 80px;
+      animation: patternSlide 40s linear infinite;
+    }
+
+    @keyframes patternSlide {
+      from { background-position: 0 0; }
+      to { background-position: 240px 160px; }
+    }
+
+    /* ===== TEXTOS CON DEGRADADO OFICIAL ===== */
+    .gradient-brand-text {
+      background: linear-gradient(135deg, #0A0E1A 0%, #007A8C 50%, #00C4D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-cyan-text {
+      background: linear-gradient(135deg, #00F0FF 0%, #5CE1E6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== VIEW TRANSITIONS ===== */
+    @keyframes fadeInSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .view-enter { animation: fadeInSlideUp 0.4s ease-out both; }
+
+    /* ===== MARQUEE ===== */
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-track {
+      display: flex;
+      animation: marqueeScroll 30s linear infinite;
+      width: max-content;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+
+    /* ===== PULSE GLOW (CIAN OFICIAL) ===== */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.6); }
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--nodes-cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    .pulse-dot-green {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--status-success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    /* ===== DASH PULSE (SVG lines) ===== */
+    @keyframes dashPulse {
+      from { stroke-dashoffset: 200; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ===== MODAL / DRAWER ANIMATIONS ===== */
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-enter { animation: scaleIn 0.25s ease-out both; }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .drawer-enter { animation: slideInRight 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+
+    @keyframes slideOutRight {
+      from { transform: translateX(0); }
+      to { transform: translateX(100%); }
+    }
+
+    /* ===== FLOAT ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .sr-hidden { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+    .sr-visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== TARJETAS NODES ===== */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid rgba(165, 177, 194, 0.25);
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 240, 255, 0.45);
+      box-shadow: 0 14px 40px -12px rgba(10, 14, 26, 0.08);
+    }
+
+    /* ===== NAV INDICATOR (CIAN) ===== */
+    .nav-indicator {
+      position: absolute;
+      bottom: -1px;
+      height: 2px;
+      background: var(--nodes-cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+      border-radius: 2px;
+      transition: left 0.3s ease, width 0.3s ease;
+    }
+
+    /* ===== HERO ARROW HOVER ===== */
+    .arrow-hover span.arr { transition: transform 0.2s ease; display: inline-block; }
+    .arrow-hover:hover span.arr { transform: translateX(4px); }
+
+    /* ===== BOTÓN PRINCIPAL NODES ===== */
+    .btn-nodes-primary {
+      background-color: var(--nodes-midnight);
+      color: #FFFFFF;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-nodes-primary:hover {
+      background-color: #12182B;
+      border-color: var(--nodes-cyan);
+      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      body * { visibility: hidden !important; }
+      #print-area, #print-area * { visibility: visible !important; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 24px; }
+    }
+
+    /* ===== CAROUSEL SNAP ===== */
+    .snap-container { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .snap-container > * { scroll-snap-align: start; }
+
+    /* ===== CUSTOM SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #A5B1C2; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #007A8C; }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useContext, createContext, useRef, useCallback } = React;
+
+    // ========================================================================
+    // SVG ICONS
+    // ========================================================================
+    const Icon = ({ name, className = "w-4 h-4", ...props }) => {
+      const icons = {
+        store: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 22V12h6v10"/></svg>,
+        shield: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4"/></svg>,
+        truck: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><rect x="1" y="3" width="15" height="13" strokeWidth="1.8"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" strokeWidth="1.8"/><circle cx="5.5" cy="18.5" r="2.5" strokeWidth="1.8"/><circle cx="18.5" cy="18.5" r="2.5" strokeWidth="1.8"/></svg>,
+        card: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><rect x="1" y="4" width="22" height="16" rx="2" strokeWidth="1.8"/><line x1="1" y1="10" x2="23" y2="10" strokeWidth="1.8"/></svg>,
+        check: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><polyline points="20 6 9 17 4 12" strokeWidth="2"/></svg>,
+        x: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><line x1="18" y1="6" x2="6" y2="18" strokeWidth="2"/><line x1="6" y1="6" x2="18" y2="18" strokeWidth="2"/></svg>,
+        share: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="18" cy="5" r="3" strokeWidth="1.8"/><circle cx="6" cy="12" r="3" strokeWidth="1.8"/><circle cx="18" cy="19" r="3" strokeWidth="1.8"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" strokeWidth="1.8"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" strokeWidth="1.8"/></svg>,
+        terminal: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><polyline points="4 17 10 11 4 5" strokeWidth="2"/><line x1="12" y1="19" x2="20" y2="19" strokeWidth="2"/></svg>,
+        whatsapp: <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>,
+        instagram: <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>,
+        facebook: <svg className={className} fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.5 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z"/></svg>,
+        globe: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" strokeWidth="1.8"/></svg>,
+        refresh: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h5M20 20v-5h-5"/><path strokeLinecap="round" strokeWidth="2" d="M20.49 9A9 9 0 005.64 5.64L4 7m16 10l-1.64 1.36A9 9 0 013.51 15"/></svg>,
+        question: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><path strokeLinecap="round" strokeWidth="2" d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>,
+        printer: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8" strokeWidth="1.8"/></svg>,
+        arrowRight: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14M12 5l7 7-7 7"/></svg>,
+        chevLeft: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>,
+        chevRight: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>,
+        warning: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>,
+        alertCircle: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="10" strokeWidth="1.8"/><line x1="12" y1="8" x2="12" y2="12" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="2" strokeLinecap="round"/></svg>,
+        gavel: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M14 6l4 4m-8-2l4 4m-9 9l6-6m-4 1l-3 3a1.414 1.414 0 002 2l3-3m5-7l4-4a2 2 0 00-2.828-2.828l-4 4m0 0l-5 5"/></svg>,
+        copy: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><rect x="9" y="9" width="13" height="13" rx="2" strokeWidth="1.8"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
+      };
+      return icons[name] || <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}><circle cx="12" cy="12" r="9" strokeWidth="1.8"/></svg>;
+    };
+
+    // ========================================================================
+    // PRODUCTS & PRODUCER DATA
+    // ========================================================================
+        // ========================================================================
+    // SERVICIO MODULAR: TIPO DE CAMBIO EN VIVO & QUOTE LOCK (API POLLAR)
+    // ========================================================================
+    // Para conectar con la API real de Pollar, sustituye el cuerpo de estos métodos:
+    // const res = await fetch('https://api.pollar.io/v1/quotes/lock', { ... });
+    const pollarFxService = {
+      currentRate: 10.48,
+      lastUpdated: new Date(),
+      spreadPct: 0.015,
+
+      // Retorna la tasa en vivo actual con micro-variaciones de centavos (mercado real)
+      getLiveRate() {
+        const delta = (Math.floor(Math.random() * 7) - 3) * 0.01; // -0.03 a +0.03
+        this.currentRate = Number(Math.max(10.20, Math.min(10.95, this.currentRate + delta)).toFixed(2));
+        this.lastUpdated = new Date();
+        return {
+          rate: this.currentRate,
+          updatedAt: this.lastUpdated.toLocaleTimeString('es-BO', { hour12: false }),
+          source: 'Pollar Live FX Stream',
+          spreadPct: this.spreadPct
+        };
+      },
+
+      // Congela una cotización por un tiempo determinado (por defecto 10 min = 600 s)
+      createQuoteLock(amountUsd, ttlSeconds = 600) {
+        const live = this.getLiveRate();
+        const quoteId = `QTE-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+        const expiresAt = Date.now() + (ttlSeconds * 1000);
+        return {
+          quoteId,
+          rate: live.rate,
+          amountUsd: Number(amountUsd.toFixed(2)),
+          estimatedBob: Number((amountUsd * live.rate).toFixed(2)),
+          expiresAt,
+          ttlSeconds,
+          source: 'Pollar Quote Lock API',
+          createdAt: new Date().toLocaleTimeString('es-BO', { hour12: false })
+        };
+      }
+    };
+
+    const INITIAL_PRODUCTS = [
+      {
+        id: 'prod-cafe', name: 'Café Orgánico de Altura (Los Yungas)', category: 'Café & Alimentos',
+        origin: 'Caranavi, La Paz • 1,750 m.s.n.m.',
+        description: 'Micro-lote lavado de estricta altura. Tueste medio artesanal con notas dulces de miel silvestre, chocolate amargo y jazmín. Calificación SCAA: 87.5.',
+        weightKg: 0.5, producerName: 'Caficultores Bio-Yungas SRL',
+        targetNetBob: 480, priceUsd: 58.00, shippingUsd: 16.00,
+        imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80',
+        rating: 4.9, reviewsCount: 38, inStock: true
+      },
+      {
+        id: 'prod-chalina', name: 'Chalina Fina 100% Baby Alpaca', category: 'Textil & Moda',
+        origin: 'Comunidad Textil, La Paz',
+        description: 'Tejida en telar tradicional con fibra de primera esquila (19.5 micras). Ultra suave, térmica, hipoalergénica y de extrema durabilidad sin tintes químicos.',
+        weightKg: 0.25, producerName: 'Manos del Illimani Artesanías',
+        targetNetBob: 750, priceUsd: 88.00, shippingUsd: 14.00,
+        imageUrl: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&w=700&q=80',
+        rating: 5.0, reviewsCount: 52, inStock: true
+      },
+      {
+        id: 'prod-singani', name: 'Singani Gran Reserva Los Cumpas D.O.', category: 'Vinos & Licores',
+        origin: 'Valle de Santa Ana, Tarija',
+        description: 'Destilado insignia de uva Moscatel de Alejandría con Denominación de Origen. Triple destilación en alambique de cobre tradicional. Graduación: 40% Alc.',
+        weightKg: 1.2, producerName: 'Bodegas de la Sierra SRL',
+        targetNetBob: 620, priceUsd: 76.00, shippingUsd: 20.00,
+        imageUrl: 'https://images.unsplash.com/photo-1527061011665-3652c757a4d4?auto=format&fit=crop&w=700&q=80',
+        rating: 4.8, reviewsCount: 29, inStock: true
+      },
+      {
+        id: 'prod-cuero', name: 'Bolso Artesanal Cuero Curtido Vegetal', category: 'Marroquinería',
+        origin: 'Tupiza, Potosí',
+        description: 'Bolso mensajero fabricado en cuero vacuno plena flor curtido con extractos de quebracho. Herrajes de bronce macizo y costura reforzada de por vida.',
+        weightKg: 0.85, producerName: 'Taller Cuero Chichas',
+        targetNetBob: 1100, priceUsd: 132.00, shippingUsd: 22.00,
+        imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=700&q=80',
+        rating: 4.9, reviewsCount: 17, inStock: true
+      }
+    ];
+
+    const INITIAL_PRODUCER = {
+      businessName: 'Asociación de Caficultores Bio-Yungas SRL',
+      legalRepresentative: 'Roberto Mamani Condori',
+      ci: '4829103-LP', nit: '1029384029',
+      taxRegime: 'EXPORTADOR_HABITUAL',
+      bankName: 'Banco Nacional de Bolivia (BNB)',
+      accountNumber: '150-0928371-29',
+      accountHolder: 'Roberto Mamani Condori',
+      kycStatus: 'VERIFIED',
+      totalDepositedBob: 8640,
+      inEscrowUsdc: 0
+    };
+
+    // ========================================================================
+    // SCROLL REVEAL HOOK
+    // ========================================================================
+    const useScrollReveal = () => {
+      const ref = useRef(null);
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const obs = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              el.classList.add('sr-visible');
+              el.classList.remove('sr-hidden');
+              obs.unobserve(el);
+            }
+          },
+          { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+        );
+        el.classList.add('sr-hidden');
+        obs.observe(el);
+        return () => obs.disconnect();
+      }, []);
+      return ref;
+    };
+
+    const SR = ({ children, className = '', delay = 0 }) => {
+      const ref = useScrollReveal();
+      return (
+        <div ref={ref} className={`sr-hidden ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+          {children}
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // CONTEXT (ALL STATE + BUSINESS LOGIC)
+    // ========================================================================
+    const AppContext = createContext();
+
+    const AppProvider = ({ children }) => {
+      const [viewMode, setViewMode] = useState('HOME');
+      const [buyerStyle, setBuyerStyle] = useState('SHOPIFY');
+      const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+      const [showHowItWorks, setShowHowItWorks] = useState(false);
+
+      // Modals
+      const [checkoutProduct, setCheckoutProduct] = useState(null);
+      const [receiptOrder, setReceiptOrder] = useState(null);
+      const [taxOrder, setTaxOrder] = useState(null);
+      const [socialShareProduct, setSocialShareProduct] = useState(null);
+      const [disputeModalOrder, setDisputeModalOrder] = useState(null);
+
+      // 1. Tipo de Cambio en Vivo de Pollar
+      const [liveFx, setLiveFx] = useState(() => pollarFxService.getLiveRate());
+
+      // Helper de sanitización de órdenes para evitar errores de undefined con versiones previas
+      const sanitizeOrder = (o, rate) => {
+        const escrowUsdc = o.escrowUsdc !== undefined ? o.escrowUsdc : o.product.priceUsd;
+        return {
+          ...o,
+          escrowUsdc,
+          checkoutRate: o.checkoutRate || rate,
+          checkoutQuoteId: o.checkoutQuoteId || `QTE-INIT-${o.id}`,
+          estimatedBobAtPurchase: o.estimatedBobAtPurchase || Number((escrowUsdc * (o.checkoutRate || rate)).toFixed(2)),
+          settledRate: o.settledRate !== undefined ? o.settledRate : (o.status === 'SETTLED_BOB' ? 10.48 : null),
+          settledBob: o.settledBob !== undefined ? o.settledBob : (o.status === 'SETTLED_BOB' ? (o.netBob || Number((escrowUsdc * 10.48).toFixed(2))) : null),
+          settlementQuoteId: o.settlementQuoteId || (o.status === 'SETTLED_BOB' ? `QTE-SETTLED-${o.id}` : null)
+        };
+      };
+
+      // Persistent State con nodo_v3
+      const [products, setProducts] = useState(() => {
+        try {
+          const s = localStorage.getItem('nodo_v3_prods') || localStorage.getItem('nodo_v2_prods');
+          return s ? JSON.parse(s) : INITIAL_PRODUCTS;
+        } catch {
+          return INITIAL_PRODUCTS;
+        }
+      });
+
+      const [orders, setOrders] = useState(() => {
+        try {
+          const s = localStorage.getItem('nodo_v3_orders') || localStorage.getItem('nodo_v2_orders');
+          if (!s) return [];
+          const parsed = JSON.parse(s);
+          return Array.isArray(parsed) ? parsed.map(o => sanitizeOrder(o, 10.48)) : [];
+        } catch {
+          return [];
+        }
+      });
+
+      const [producer, setProducer] = useState(() => {
+        try {
+          const s = localStorage.getItem('nodo_v3_prod_info') || localStorage.getItem('nodo_v2_prod_info');
+          if (!s) return INITIAL_PRODUCER;
+          const p = JSON.parse(s);
+          return {
+            ...INITIAL_PRODUCER,
+            ...p,
+            inEscrowUsdc: p.inEscrowUsdc !== undefined ? p.inEscrowUsdc : (p.inEscrowBob ? Number((p.inEscrowBob / 10.48).toFixed(2)) : 0)
+          };
+        } catch {
+          return INITIAL_PRODUCER;
+        }
+      });
+
+      const [logs, setLogs] = useState(() => {
+        try {
+          const s = localStorage.getItem('nodo_v3_logs') || localStorage.getItem('nodo_v2_logs');
+          return s ? JSON.parse(s) : [
+            {
+              id: 'init-1',
+              pin: 'PIN_FX_POLLAR',
+              type: 'INFO',
+              title: 'API Pollar Conectada',
+              desc: 'Streaming de tipo de cambio en vivo y mesa de pagos lista.',
+              time: '12:00:00'
+            }
+          ];
+        } catch {
+          return [{ id: 'init-1', pin: 'PIN_FX_POLLAR', type: 'INFO', title: 'API Pollar Conectada', desc: 'Streaming en vivo activo.', time: '12:00:00' }];
+        }
+      });
+
+      // Actualización periódica cada 30 segundos (simulación de mercado cambiario)
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setLiveFx(pollarFxService.getLiveRate());
+        }, 30000);
+        return () => clearInterval(interval);
+      }, []);
+
+      // Persistencia en localStorage
+      useEffect(() => {
+        localStorage.setItem('nodo_v3_prods', JSON.stringify(products));
+        localStorage.setItem('nodo_v3_orders', JSON.stringify(orders));
+        localStorage.setItem('nodo_v3_prod_info', JSON.stringify(producer));
+        localStorage.setItem('nodo_v3_logs', JSON.stringify(logs));
+      }, [products, orders, producer, logs]);
+
+      const addLog = (log) => {
+        setLogs(prev => [
+          {
+            ...log,
+            id: `log_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+            time: new Date().toLocaleTimeString('es-BO', { hour12: false })
+          },
+          ...prev.slice(0, 35)
+        ]);
+      };
+
+      // Función para refrescar manualmente la tasa
+      const refreshLiveFx = () => {
+        const updated = pollarFxService.getLiveRate();
+        setLiveFx(updated);
+        addLog({
+          pin: 'PIN_FX_POLLAR',
+          type: 'INFO',
+          title: `[POLLAR LIVE FX] Tasa de mercado: 1 USD = ${updated.rate.toFixed(2)} BOB`,
+          desc: `Actualizada vía API Pollar Stream. Spread mesa: ${(updated.spreadPct * 100).toFixed(1)}%.`
+        });
+        return updated;
+      };
+
+      // 1. Proceso de Pago en USD (Comprador) con Quote Lock
+      const submitPayment = async ({ product, buyer, cardLast4, forceDecline, quoteLock }) => {
+        const totalUsd = Number((product.priceUsd + product.shippingUsd).toFixed(2));
+        const quote = quoteLock || pollarFxService.createQuoteLock(totalUsd, 600);
+        const escrowUsdc = product.priceUsd; // Valor comercial neto protegido en USDC
+        const estimatedBobAtPurchase = Number((escrowUsdc * quote.rate).toFixed(2));
+
+        // Log de congelamiento de cotización
+        addLog({
+          pin: 'PIN_FX_POLLAR',
+          type: 'INFO',
+          title: `[QUOTE LOCK] Cotización ${quote.quoteId} fijada @ ${quote.rate.toFixed(2)} BOB/USD`,
+          desc: `Bloqueo de tipo de cambio por 600s para evitar variaciones durante el pago del comprador.`
+        });
+
+        addLog({
+          pin: 'PIN_A0_IN',
+          type: 'INFO',
+          title: `[ENTRADA USD] Cobro $${totalUsd} USD`,
+          desc: `Comprador: ${buyer.name} (${buyer.country}) vía Tarjeta Visa/Mastercard.`
+        });
+
+        await new Promise(r => setTimeout(r, 500));
+
+        if (forceDecline) {
+          addLog({
+            pin: 'PIN_ERR',
+            type: 'ERROR',
+            title: `[ERROR COBRO] Tarjeta Rechazada`,
+            desc: `El banco emisor internacional denegó la transacción por fondos o bloqueo.`
+          });
+          return { success: false, error: 'Tarjeta denegada por tu banco emisor. Prueba con el botón "Simular Pago Exitoso".' };
+        }
+
+        const authCode = `AUTH-${Math.floor(100000 + Math.random() * 900000)}`;
+        const orderId = `ORD-${Date.now().toString().slice(-5)}`;
+        const stellarHash = '0x' + Array.from({length: 48}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
+        // Log de bloqueo en Stellar respaldado en USDC
+        addLog({
+          pin: 'D11_STELLAR',
+          type: 'SUCCESS',
+          title: `[ESCROW USDC] Custodia Criptográfica en Stellar`,
+          desc: `Bloqueados $${escrowUsdc.toFixed(2)} USDC en contrato. Libre de riesgo cambiario hasta entrega física. Hash: ${stellarHash.slice(0, 16)}...`
+        });
+
+        const newOrder = {
+          id: orderId,
+          date: new Date().toISOString(),
+          product,
+          totalUsd,
+          escrowUsdc,
+          checkoutQuoteId: quote.quoteId,
+          checkoutRate: quote.rate,
+          estimatedBobAtPurchase,
+          settledRate: null,
+          settledBob: null,
+          settlementQuoteId: null,
+          status: 'IN_ESCROW',
+          buyer,
+          authCode,
+          cardLast4,
+          tracking: null,
+          stellarHash
+        };
+
+        setOrders(prev => [newOrder, ...prev]);
+        setProducer(p => ({
+          ...p,
+          inEscrowUsdc: Number(((p.inEscrowUsdc || 0) + escrowUsdc).toFixed(2))
+        }));
+
+        return { success: true, order: newOrder };
+      };
+
+      // 2. Despachar Pedido (Productor)
+      const dispatchOrder = (orderId, courierName, trackingNumber) => {
+        const cleanCode = trackingNumber.trim().toUpperCase();
+        if (cleanCode.length < 5 || cleanCode === '123' || cleanCode === 'TEST') {
+          return { ok: false, msg: 'Código de rastreo inválido o muy corto. Escribe un código real como: DHL-BO-98231' };
+        }
+        setOrders(prev => prev.map(o => {
+          if (o.id === orderId) {
+            return {
+              ...o,
+              status: 'DISPATCHED',
+              tracking: {
+                courier: courierName,
+                code: cleanCode,
+                shippedAt: new Date().toLocaleDateString('es-BO'),
+                status: 'En tránsito aéreo internacional'
+              }
+            };
+          }
+          return o;
+        }));
+
+        addLog({
+          pin: 'D12_COURIER',
+          type: 'INFO',
+          title: `[GUÍA VALIDADA] ${courierName}: ${cleanCode}`,
+          desc: `Paquete registrado en aduana aérea de exportación (Viru Viru / El Alto).`
+        });
+
+        return { ok: true };
+      };
+
+      // 3. Confirmar Entrega y Liquidar en Banco (API Pollar Off-ramp con Settlement Quote Lock)
+      const confirmDeliveryAndSettle = async (orderId) => {
+        const ord = orders.find(o => o.id === orderId);
+        if (!ord) return;
+
+        if (producer.kycStatus !== 'VERIFIED') {
+          alert('Tu cuenta aún no está verificada. Por seguridad bancaria debes aprobar el KYC antes de depositar.');
+          return;
+        }
+
+        addLog({
+          pin: 'D13_WEBHOOK',
+          type: 'SUCCESS',
+          title: `[WEBHOOK ENTREGA] Paquete Recibido`,
+          desc: `El comprador firmó la recepción. Disparando liquidación en tiempo real vía API Pollar.`
+        });
+
+        // Cotización en vivo de liquidación al momento exacto de la entrega
+        const settlementQuote = pollarFxService.createQuoteLock(ord.escrowUsdc, 600);
+        const settledBob = Number((ord.escrowUsdc * settlementQuote.rate).toFixed(2));
+        const achRef = `ACH-${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+        addLog({
+          pin: 'D09_POLLAR',
+          type: 'SUCCESS',
+          title: `[OFF-RAMP POLLAR] $${ord.escrowUsdc} USDC ➔ Bs. ${settledBob} BOB`,
+          desc: `Liquidado a tipo de cambio de mercado @ ${settlementQuote.rate.toFixed(2)} BOB/USD • Ref: ${settlementQuote.quoteId}.`
+        });
+
+        addLog({
+          pin: 'D09_POLLAR',
+          type: 'SUCCESS',
+          title: `[DEPÓSITO BANCARIO] +Bs. ${settledBob} BOB`,
+          desc: `Transferencia ACH directa a ${producer.bankName} (Cta: ${producer.accountNumber}). Ref: ${achRef}.`
+        });
+
+        setOrders(prev => prev.map(o => o.id === orderId ? {
+          ...o,
+          status: 'SETTLED_BOB',
+          achRef,
+          settledBob,
+          settledRate: settlementQuote.rate,
+          settlementQuoteId: settlementQuote.quoteId,
+          settledAt: new Date().toISOString()
+        } : o));
+
+        setProducer(p => ({
+          ...p,
+          totalDepositedBob: Number((p.totalDepositedBob + settledBob).toFixed(2)),
+          inEscrowUsdc: Math.max(0, Number(((p.inEscrowUsdc || 0) - ord.escrowUsdc).toFixed(2)))
+        }));
+      };
+
+      // 4. Disputas & Arbitraje
+      const openDispute = (orderId, reason, note = '') => {
+        setOrders(prev => prev.map(o => {
+          if (o.id === orderId) {
+            return {
+              ...o,
+              status: 'DISPUTED',
+              dispute: {
+                reason,
+                note,
+                openedAt: new Date().toISOString()
+              }
+            };
+          }
+          return o;
+        }));
+        addLog({
+          pin: 'INT_D12',
+          type: 'ERROR',
+          title: `[DISPUTA INICIADA] Orden #${orderId}`,
+          desc: `Comprador abrió reclamo por: "${reason}". Fondos en garantía congelados para revisión de evidencia.`
+        });
+      };
+
+      const resolveDispute = (orderId, decision, resolutionNote = '') => {
+        const ord = orders.find(o => o.id === orderId);
+        if (!ord) return;
+
+        if (decision === 'RELEASE_PRODUCER') {
+          const settlementQuote = pollarFxService.createQuoteLock(ord.escrowUsdc, 600);
+          const settledBob = Number((ord.escrowUsdc * settlementQuote.rate).toFixed(2));
+          const achRef = `ACH-${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+          setOrders(prev => prev.map(o => o.id === orderId ? {
+            ...o,
+            status: 'SETTLED_BOB',
+            achRef,
+            settledBob,
+            settledRate: settlementQuote.rate,
+            settlementQuoteId: settlementQuote.quoteId,
+            settledAt: new Date().toISOString(),
+            disputeResolution: { decision, note: resolutionNote || 'Arbitraje favorable al productor tras verificar tracking válido del courier.', resolvedAt: new Date().toISOString() }
+          } : o));
+
+          setProducer(p => ({
+            ...p,
+            totalDepositedBob: Number((p.totalDepositedBob + settledBob).toFixed(2)),
+            inEscrowUsdc: Math.max(0, Number(((p.inEscrowUsdc || 0) - ord.escrowUsdc).toFixed(2)))
+          }));
+
+          addLog({
+            pin: 'D09_POLLAR',
+            type: 'SUCCESS',
+            title: `[ARBITRAJE RESUELTO] Fallo a favor del Productor`,
+            desc: `Tracking comprobado. Liberados $${ord.escrowUsdc} USDC ➔ Bs. ${settledBob} BOB a ${settlementQuote.rate.toFixed(2)} (Ref: ${achRef}).`
+          });
+        } else if (decision === 'REFUND_BUYER') {
+          setOrders(prev => prev.map(o => o.id === orderId ? {
+            ...o,
+            status: 'REFUNDED',
+            disputeResolution: { decision, note: resolutionNote || 'Reembolso total acordado con el comprador.', resolvedAt: new Date().toISOString() }
+          } : o));
+
+          setProducer(p => ({
+            ...p,
+            inEscrowUsdc: Math.max(0, Number(((p.inEscrowUsdc || 0) - ord.escrowUsdc).toFixed(2)))
+          }));
+
+          addLog({
+            pin: 'PIN_A0_IN',
+            type: 'INFO',
+            title: `[REEMBOLSO EJECUTADO] Comprador Reembolsado`,
+            desc: `Devolución de $${ord.totalUsd} USD procesada a la tarjeta **** ${ord.cardLast4} vía contrato Stellar.`
+          });
+        }
+      };
+
+      // Reset
+      const resetAll = () => {
+        localStorage.removeItem('nodo_v3_prods');
+        localStorage.removeItem('nodo_v3_orders');
+        localStorage.removeItem('nodo_v3_prod_info');
+        localStorage.removeItem('nodo_v3_logs');
+        localStorage.removeItem('nodo_v2_prods');
+        localStorage.removeItem('nodo_v2_orders');
+        localStorage.removeItem('nodo_v2_prod_info');
+        localStorage.removeItem('nodo_v2_logs');
+        localStorage.removeItem('nodo_v2_fx');
+        setProducts(INITIAL_PRODUCTS);
+        setOrders([]);
+        setProducer(INITIAL_PRODUCER);
+        setLiveFx(pollarFxService.getLiveRate());
+        setLogs([
+          {
+            id: 'reset',
+            pin: 'PIN_FX_POLLAR',
+            type: 'INFO',
+            title: 'Sistema Reiniciado',
+            desc: 'Base de datos restaurada y streaming Pollar reconectado.',
+            time: new Date().toLocaleTimeString('es-BO')
+          }
+        ]);
+        setViewMode('HOME');
+      };
+
+      return (
+        <AppContext.Provider value={{
+          viewMode, setViewMode, buyerStyle, setBuyerStyle,
+          isDrawerOpen, setIsDrawerOpen, showHowItWorks, setShowHowItWorks,
+          checkoutProduct, setCheckoutProduct, receiptOrder, setReceiptOrder,
+          taxOrder, setTaxOrder, socialShareProduct, setSocialShareProduct,
+          disputeModalOrder, setDisputeModalOrder,
+          products, setProducts, orders, producer, setProducer, logs,
+          liveFx, refreshLiveFx, pollarFxService,
+          submitPayment, dispatchOrder, confirmDeliveryAndSettle, openDispute, resolveDispute, resetAll
+        }}>
+          {children}
+        </AppContext.Provider>
+      );
+    };
+
+    const useApp = () => useContext(AppContext);
+
+    // ========================================================================
+    // NAVBAR (Glass Effect, Minimal)
+    // ========================================================================
+    const TopNavbar = () => {
+      const { viewMode, setViewMode, setIsDrawerOpen, orders, setShowHowItWorks, resetAll, liveFx, refreshLiveFx } = useApp();
+      const pending = orders.filter(o => o.status === 'IN_ESCROW' || o.status === 'DISPATCHED').length;
+      const disputedCount = orders.filter(o => o.status === 'DISPUTED').length;
+      const navRef = useRef(null);
+      const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+      const tabs = [
+        { key: 'HOME', label: 'Inicio' },
+        { key: 'BUYER', label: 'Tienda USD' },
+        { key: 'PRODUCER', label: 'Productor BOB', badge: pending },
+        { key: 'BACKOFFICE', label: 'Finanzas', badge: disputedCount },
+      ];
+
+      useEffect(() => {
+        if (!navRef.current) return;
+        const activeBtn = navRef.current.querySelector(`[data-tab="${viewMode}"]`);
+        if (activeBtn) {
+          const rect = activeBtn.getBoundingClientRect();
+          const parentRect = navRef.current.getBoundingClientRect();
+          setIndicator({ left: rect.left - parentRect.left, width: rect.width });
+        }
+      }, [viewMode]);
+
+      return (
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-white/85 border-b border-slate-200/60 shadow-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+
+            {/* Logo */}
+            <div className="flex items-center space-x-3 cursor-pointer flex-shrink-0" onClick={() => setViewMode('HOME')}>
+              {/* Imagotipo para escritorio */}
+              <img 
+                src="./assets/imagotipo.png" 
+                alt="NODES" 
+                className="hidden sm:block h-9 w-auto object-contain" 
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fb = e.currentTarget.parentElement.querySelector('.brand-fallback');
+                  if (fb) fb.style.display = 'flex';
+                }}
+              />
+              {/* Isotipo para celulares */}
+              <img 
+                src="./assets/isotipo.png" 
+                alt="NODES" 
+                className="block sm:hidden h-8 w-8 object-contain" 
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fb = e.currentTarget.parentElement.querySelector('.brand-fallback');
+                  if (fb) fb.style.display = 'flex';
+                }}
+              />
+              {/* Fallback SVG */}
+              <div style={{ display: 'none' }} className="brand-fallback items-center space-x-2">
+                <div className="w-9 h-9 bg-[#0A0E1A] rounded-xl flex items-center justify-center border border-[#00F0FF]/30">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="3" fill="#00F0FF"/>
+                    <circle cx="9" cy="9" r="7" stroke="#00F0FF" strokeWidth="1.5" strokeDasharray="3 3"/>
+                    <circle cx="9" cy="2" r="1.5" fill="#FFFFFF"/>
+                    <circle cx="16" cy="9" r="1.5" fill="#FFFFFF"/>
+                    <circle cx="9" cy="16" r="1.5" fill="#FFFFFF"/>
+                    <circle cx="2" cy="9" r="1.5" fill="#FFFFFF"/>
+                  </svg>
+                </div>
+                <div className="leading-tight">
+                  <span className="font-extrabold text-[15px] tracking-tight text-[#0A0E1A]">NODES</span>
+                  <span className="block text-[9px] font-semibold text-[#007A8C] uppercase tracking-widest">Bolivia ↔ Global</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Nav Links */}
+            <nav ref={navRef} className="hidden md:flex items-center space-x-1 relative">
+              {tabs.map(t => (
+                <button
+                  key={t.key}
+                  data-tab={t.key}
+                  onClick={() => setViewMode(t.key)}
+                  className={`relative px-4 py-2 text-[13px] font-medium transition-colors ${
+                    viewMode === t.key ? 'text-nodo-blue font-semibold' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {t.label}
+                  {t.badge > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-nodo-blue text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                      {t.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
+              <div className="nav-indicator" style={{ left: indicator.left, width: indicator.width }} />
+            </nav>
+
+            {/* Indicador de Tasa en Vivo Pollar + Acciones */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Badge Tasa en Vivo Pollar */}
+              <div className="flex items-center space-x-2 px-3 py-1.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span>
+                <div className="hidden sm:block text-[11px] leading-tight text-slate-600">
+                  <span className="text-[10px] text-slate-400 block uppercase font-mono">Pollar Live FX</span>
+                  <span>1 USD = <strong className="font-mono text-slate-900 font-bold">{liveFx.rate.toFixed(2)} BOB</strong></span>
+                </div>
+                <div className="sm:hidden font-mono text-[11px] font-bold text-slate-800">
+                  {liveFx.rate.toFixed(2)} Bs
+                </div>
+                <button
+                  onClick={refreshLiveFx}
+                  className="p-1 text-slate-400 hover:text-nodo-blue hover:bg-slate-200/50 rounded-md transition"
+                  title="Actualizar cotización en vivo de Pollar"
+                >
+                  <Icon name="refresh" className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <button onClick={() => setShowHowItWorks(true)} className="hidden xl:block text-[12px] text-slate-500 hover:text-nodo-blue transition font-medium">
+                ¿Cómo funciona?
+              </button>
+
+              <button
+                onClick={() => setIsDrawerOpen(true)}
+                className="flex items-center space-x-2 px-3 sm:px-3.5 py-2 bg-nodo-dark hover:bg-slate-800 text-white text-[12px] font-semibold rounded-xl transition-all shadow-sm flex-shrink-0"
+              >
+                <span className="pulse-dot flex-shrink-0"></span>
+                <span className="hidden sm:inline font-mono text-[11px]">Motor Invisible</span>
+              </button>
+
+              <button onClick={resetAll} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="Reiniciar demo">
+                <Icon name="refresh" className="w-4 h-4" />
+              </button>
+
+              {/* Mobile Menu */}
+              <select
+                value={viewMode}
+                onChange={e => setViewMode(e.target.value)}
+                className="md:hidden text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white font-medium"
+              >
+                {tabs.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+              </select>
+            </div>
+          </div>
+        </header>
+      );
+    };
+
+    const HomeView = () => {
+      const { setViewMode, setCheckoutProduct, products } = useApp();
+      const carouselRef = useRef(null);
+
+      const scrollCarousel = (dir) => {
+        if (!carouselRef.current) return;
+        carouselRef.current.scrollBy({ left: dir * 300, behavior: 'smooth' });
+      };
+
+      const techPartners = [
+        { name: 'Red Stellar (USDC)', desc: 'Escrow criptográfico' },
+        { name: 'API Pollar / Mesa de Pagos', desc: 'Off-ramp Bolivia' },
+        { name: 'Pagos Tokenizados PCI-DSS', desc: 'Tarjetas internacionales' },
+        { name: 'DHL / FedEx Tracking', desc: 'Verificación de envío' },
+        { name: 'Banca Local BOB / QR', desc: 'Depósito instantáneo' },
+        { name: 'Facturación SIN Tasa Cero', desc: 'Exportación Bolivia' },
+      ];
+
+      const actors = [
+        { key: 'PRODUCER', label: 'Productor Boliviano', sub: 'Fija precio en BOB', color: 'emerald', icon: 'store', sends: 'Producto + Factura SIN', receives: 'Bs. en su banco' },
+        { key: 'PLATFORM', label: 'Plataforma NODO', sub: 'Motor invisible', color: 'blue', icon: 'shield', sends: 'Garantía Escrow', receives: 'Comisión 3%' },
+        { key: 'BUYER', label: 'Comprador Internacional', sub: 'Paga en USD', color: 'slate', icon: 'globe', sends: 'Pago con tarjeta USD', receives: 'Producto + Tracking' },
+      ];
+
+      return (
+        <div className="view-enter">
+          {/* Hero */}
+          <section className="relative overflow-hidden">
+            <div className="hero-pattern absolute inset-0 pointer-events-none"></div>
+            <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-32">
+              <SR>
+                <p className="font-mono text-[11px] sm:text-xs text-nodo-blue font-medium tracking-widest uppercase mb-4">
+                  01 — Comercio Transfronterizo Bolivia
+                </p>
+              </SR>
+              <SR delay={100}>
+                <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
+                  <span className="text-[#0A0E1A]">Exporta al mundo.</span><br/>
+                  <span className="gradient-brand-text">Cobra en Bolivianos.</span><br/>
+                  <span className="text-[#0A0E1A]">Sin fricción.</span>
+                </h1>
+              </SR>
+              <SR delay={200}>
+                <p className="text-base sm:text-lg text-slate-500 max-w-2xl leading-relaxed mb-8">
+                  El comprador internacional paga en dólares con su tarjeta de crédito. El productor boliviano recibe el dinero directamente en su cuenta bancaria en bolivianos, al tipo de cambio de mercado más competitivo.
+                </p>
+              </SR>
+              <SR delay={300}>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setViewMode('BUYER')}
+                    className="arrow-hover inline-flex items-center justify-center space-x-2 px-6 py-3.5 bg-[#0A0E1A] hover:bg-[#12182B] text-white font-semibold rounded-xl transition-all border border-[#00F0FF]/30 hover:border-[#00F0FF] shadow-lg shadow-[#00F0FF]/10 text-sm"
+                  >
+                    <span>Probar Tienda en Vivo</span>
+                    <span className="arr text-[#00F0FF]">→</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('PRODUCER')}
+                    className="arrow-hover inline-flex items-center justify-center space-x-2 px-6 py-3.5 bg-white hover:bg-[#F4F7FA] text-[#0A0E1A] font-semibold rounded-xl border border-[#A5B1C2]/40 transition-all text-sm"
+                  >
+                    <span>Panel del Productor</span>
+                    <span className="arr text-[#007A8C]">→</span>
+                  </button>
+                </div>
+              </SR>
+            </div>
+          </section>
+
+          {/* Tech Marquee */}
+          <SR>
+            <section className="border-y border-slate-100 bg-slate-50/50 py-6 overflow-hidden">
+              <p className="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4">Impulsado por infraestructura real</p>
+              <div className="relative overflow-hidden">
+                <div className="marquee-track">
+                  {[...techPartners, ...techPartners].map((t, i) => (
+                    <div key={i} className="flex-shrink-0 mx-4 px-5 py-3 bg-white border border-slate-200/80 rounded-xl text-center min-w-[180px]">
+                      <p className="text-xs font-bold text-slate-800">{t.name}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{t.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </SR>
+
+          {/* Cycle Diagram */}
+          <SR>
+            <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+              <div className="text-center mb-12">
+                <p className="font-mono text-[11px] text-nodo-blue font-medium tracking-widest uppercase mb-2">02 — Ciclo Bidireccional</p>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-nodo-dark tracking-tight">Tres actores, un flujo sin fricción</h2>
+                <p className="text-sm text-slate-500 mt-2 max-w-lg mx-auto">Haz clic en cada actor para explorar su panel en el simulador</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {actors.map((a, i) => (
+                  <button
+                    key={a.key}
+                    onClick={() => a.key !== 'PLATFORM' && setViewMode(a.key)}
+                    className={`card p-6 text-left group cursor-pointer ${a.key === 'PLATFORM' ? 'ring-2 ring-nodo-blue/20' : ''}`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${
+                      a.color === 'emerald' ? 'bg-emerald-100 text-emerald-700' :
+                      a.color === 'blue' ? 'bg-blue-100 text-nodo-blue' :
+                      'bg-slate-100 text-slate-700'
+                    }`}>
+                      <Icon name={a.icon} className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-base text-slate-900 mb-1">{a.label}</h3>
+                    <p className="text-xs text-slate-500 mb-3">{a.sub}</p>
+                    <div className="space-y-1.5 text-[11px]">
+                      <p className="text-slate-500"><span className="font-semibold text-slate-700">Envía:</span> {a.sends}</p>
+                      <p className="text-slate-500"><span className="font-semibold text-emerald-700">Recibe:</span> {a.receives}</p>
+                    </div>
+                    {a.key !== 'PLATFORM' && (
+                      <p className="mt-4 text-xs font-semibold text-nodo-blue opacity-0 group-hover:opacity-100 transition-opacity">
+                        Ir al panel →
+                      </p>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* SVG Connecting Lines */}
+              <div className="hidden md:flex justify-center mt-6">
+                <svg width="600" height="30" viewBox="0 0 600 30" fill="none">
+                  <line x1="100" y1="15" x2="300" y2="15" stroke="#00F0FF" strokeWidth="2.5" strokeDasharray="8 4">
+                    <animate attributeName="stroke-dashoffset" from="200" to="0" dur="3s" repeatCount="indefinite"/>
+                  </line>
+                  <line x1="300" y1="15" x2="500" y2="15" stroke="#00F0FF" strokeWidth="2.5" strokeDasharray="8 4">
+                    <animate attributeName="stroke-dashoffset" from="200" to="0" dur="3s" repeatCount="indefinite"/>
+                  </line>
+                  <circle cx="100" cy="15" r="5" fill="#10B981"/>
+                  <circle cx="300" cy="15" r="5" fill="#00F0FF"/>
+                  <circle cx="500" cy="15" r="5" fill="#A5B1C2"/>
+                </svg>
+              </div>
+            </section>
+          </SR>
+
+          {/* Product Carousel */}
+          <SR>
+            <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="font-mono text-[11px] text-nodo-blue font-medium tracking-widest uppercase mb-1">03 — Productos Destacados</p>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-nodo-dark tracking-tight">Desde Bolivia para el mundo</h2>
+                </div>
+                <div className="flex space-x-2">
+                  <button onClick={() => scrollCarousel(-1)} className="w-9 h-9 border border-slate-200 rounded-xl flex items-center justify-center hover:bg-slate-50 transition">
+                    <Icon name="chevLeft" className="w-4 h-4 text-slate-600" />
+                  </button>
+                  <button onClick={() => scrollCarousel(1)} className="w-9 h-9 border border-slate-200 rounded-xl flex items-center justify-center hover:bg-slate-50 transition">
+                    <Icon name="chevRight" className="w-4 h-4 text-slate-600" />
+                  </button>
+                </div>
+              </div>
+
+              <div ref={carouselRef} className="flex space-x-5 overflow-x-auto pb-4 snap-container" style={{ scrollbarWidth: 'none' }}>
+                {products.map(p => (
+                  <div key={p.id} className="card flex-shrink-0 w-72 overflow-hidden">
+                    <div className="relative h-48 bg-slate-100">
+                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"/>
+                      <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-nodo-dark text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200/50">
+                        {p.origin.split('•')[0].trim()}
+                      </span>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-[10px] text-slate-400 font-medium">{p.category}</p>
+                      <h3 className="font-bold text-sm text-slate-900 mt-0.5 line-clamp-1">{p.name}</h3>
+                      <div className="flex items-baseline justify-between mt-3">
+                        <span className="text-lg font-bold font-mono text-slate-900">${p.priceUsd}</span>
+                        <span className="text-[11px] text-slate-400">+${p.shippingUsd} envío</span>
+                      </div>
+                      <button
+                        onClick={() => { setCheckoutProduct(p); setViewMode('BUYER'); }}
+                        className="w-full mt-3 py-2.5 bg-nodo-dark hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-1.5"
+                      >
+                        <Icon name="card" className="w-3.5 h-3.5" />
+                        <span>Comprar en USD</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </SR>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // BUYER VIEW
+    // ========================================================================
+    const BuyerView = () => {
+      const { products, buyerStyle, setBuyerStyle, setCheckoutProduct, setSocialShareProduct, orders, setReceiptOrder, setDisputeModalOrder } = useApp();
+      const [categoryFilter, setCategoryFilter] = useState('ALL');
+      const filtered = categoryFilter === 'ALL' ? products : products.filter(p => p.category.toLowerCase().includes(categoryFilter.toLowerCase()));
+
+      return (
+        <div className="space-y-6 pb-12 view-enter">
+          {/* Header + Style Toggle */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-nodo-dark">Vitrina de Productos de Exportación</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Productos bolivianos premium con envío internacional y pago en USD</p>
+            </div>
+            <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+              <button onClick={() => setBuyerStyle('SHOPIFY')} className={`px-3 py-1.5 rounded-lg transition ${buyerStyle === 'SHOPIFY' ? 'bg-white text-slate-900 font-semibold shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+                Catálogo
+              </button>
+              <button onClick={() => setBuyerStyle('SOCIAL_FEED')} className={`px-3 py-1.5 rounded-lg transition flex items-center space-x-1 ${buyerStyle === 'SOCIAL_FEED' ? 'bg-white text-slate-900 font-semibold shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+                <Icon name="instagram" className="w-3 h-3 text-pink-500" />
+                <span>Feed Social</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Category Filters */}
+          <div className="flex space-x-2 overflow-x-auto pb-1 text-xs">
+            {['ALL', 'Café', 'Textil', 'Vinos', 'Marroquinería'].map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`flex-shrink-0 px-3.5 py-2 rounded-xl font-medium border transition ${
+                  categoryFilter === cat
+                    ? 'bg-nodo-dark text-white border-nodo-dark'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {cat === 'ALL' ? 'Todos' : cat}
+              </button>
+            ))}
+          </div>
+
+          {/* SHOPIFY MODE */}
+          {buyerStyle === 'SHOPIFY' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {filtered.map((p, i) => (
+                <SR key={p.id} delay={i * 80}>
+                  <div className="card flex flex-col justify-between overflow-hidden h-full">
+                    <div>
+                      <div className="relative h-56 bg-slate-100 overflow-hidden">
+                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
+                        <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-nodo-dark text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200/50">
+                          {p.origin.split('•')[0].trim()}
+                        </span>
+                      </div>
+                      <div className="p-4 space-y-2">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-400">{p.category}</span>
+                          <span className="text-amber-600 font-semibold">★ {p.rating} ({p.reviewsCount})</span>
+                        </div>
+                        <h3 className="font-bold text-sm text-slate-900 line-clamp-1">{p.name}</h3>
+                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{p.description}</p>
+                        <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-100">Productor: <strong className="text-slate-600">{p.producerName}</strong></p>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-slate-100 space-y-2.5">
+                      <div className="flex justify-between items-baseline">
+                        <div>
+                          <span className="text-lg font-bold text-slate-900 font-mono">${p.priceUsd.toFixed(2)}</span>
+                          <span className="text-xs text-slate-400 ml-1">USD</span>
+                        </div>
+                        <span className="text-[11px] text-slate-400">+${p.shippingUsd} DHL</span>
+                      </div>
+                      <button onClick={() => setCheckoutProduct(p)} className="w-full py-2.5 bg-nodo-dark hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-1.5">
+                        <Icon name="card" className="w-3.5 h-3.5" /><span>Comprar con Tarjeta (USD)</span>
+                      </button>
+                      <button onClick={() => setSocialShareProduct(p)} className="w-full py-2 bg-white hover:bg-slate-50 text-slate-600 text-xs font-medium border border-slate-200 rounded-xl transition flex items-center justify-center space-x-1">
+                        <Icon name="share" className="w-3 h-3" /><span>Compartir</span>
+                      </button>
+                    </div>
+                  </div>
+                </SR>
+              ))}
+            </div>
+          ) : (
+            /* SOCIAL FEED MODE */
+            <div className="max-w-xl mx-auto space-y-6">
+              {filtered.map(p => (
+                <SR key={p.id}>
+                  <div className="card overflow-hidden">
+                    <div className="p-3 flex items-center justify-between border-b border-slate-100">
+                      <div className="flex items-center space-x-2.5">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-nodo-blue to-indigo-600 text-white flex items-center justify-center text-xs font-bold">
+                          {p.producerName.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-[13px] text-slate-900 flex items-center space-x-1">
+                            <span>{p.producerName}</span><span className="text-nodo-blue">✓</span>
+                          </p>
+                          <p className="text-[10px] text-slate-400">{p.origin}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="relative aspect-square bg-slate-100">
+                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover"/>
+                      <div className="absolute bottom-4 left-4 bg-nodo-dark/90 text-white px-3 py-2 rounded-xl backdrop-blur-sm flex items-center space-x-2 text-xs">
+                        <Icon name="store" className="w-3.5 h-3.5 text-emerald-400" />
+                        <div>
+                          <p className="font-bold">{p.name}</p>
+                          <p className="text-[10px] text-slate-300">${p.priceUsd} USD • Envío asegurado</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div className="flex space-x-3 text-sm text-slate-700">
+                          <span>❤️ {p.reviewsCount * 4 + 12}</span>
+                          <span>💬 {p.reviewsCount}</span>
+                          <button onClick={() => setSocialShareProduct(p)} className="hover:text-nodo-blue transition">↗ Compartir</button>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg">Escrow 100%</span>
+                      </div>
+                      <p className="text-xs text-slate-700"><strong className="mr-1">{p.producerName}</strong>{p.description}</p>
+                      <div className="pt-2 border-t border-slate-100 flex space-x-2">
+                        <button onClick={() => setCheckoutProduct(p)} className="flex-1 py-2.5 bg-nodo-dark hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-1.5">
+                          <Icon name="card" className="w-3.5 h-3.5" /><span>Comprar (${(p.priceUsd + p.shippingUsd).toFixed(2)} USD)</span>
+                        </button>
+                        <button onClick={() => setSocialShareProduct(p)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200">
+                          Compartir
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </SR>
+              ))}
+            </div>
+          )}
+
+          {/* Orders Section */}
+          <SR>
+            <div className="pt-6 border-t border-slate-200 space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-base text-nodo-dark">Mis Compras y Seguimiento de Envíos</h3>
+                <span className="text-xs text-slate-500">{orders.length} pedidos registrados</span>
+              </div>
+              {orders.length === 0 ? (
+                <div className="card p-6 text-center text-sm text-slate-400">
+                  No has simulado ninguna compra en esta sesión. Selecciona un producto arriba y completa el checkout.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.map(o => {
+                    const stepIndex = o.status === 'SETTLED_BOB' ? 4 : o.status === 'DISPATCHED' ? 3 : (o.status === 'DISPUTED' || o.status === 'REFUNDED') ? 2 : 2;
+                    return (
+                      <div key={o.id} className="card p-5 space-y-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono font-bold text-xs bg-slate-100 px-2.5 py-1 rounded-lg text-slate-800">{o.id}</span>
+                              <span className="font-bold text-sm text-slate-900">{o.product.name}</span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">
+                              Total: <strong>${o.totalUsd} USD</strong> • Tarjeta: **** {o.cardLast4} • Destino: {o.buyer.country}
+                            </p>
+                            {o.tracking && (
+                              <p className="text-[11px] text-nodo-blue font-mono mt-0.5">
+                                Guía {o.tracking.courier}: <strong>{o.tracking.code}</strong> • {o.tracking.status}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                            <button
+                              onClick={() => setReceiptOrder(o)}
+                              className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-xl border border-slate-200 transition"
+                            >
+                              Ver Recibo
+                            </button>
+                            {o.status === 'SETTLED_BOB' ? (
+                              <span className="px-3 py-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200">
+                                Entregado & Liquidado ✓
+                              </span>
+                            ) : o.status === 'DISPATCHED' ? (
+                              <span className="px-3 py-1.5 bg-blue-50 text-blue-800 text-xs font-bold rounded-xl border border-blue-200">
+                                En Tránsito Aéreo
+                              </span>
+                            ) : o.status === 'DISPUTED' ? (
+                              <span className="px-3 py-1.5 bg-red-50 text-red-800 text-xs font-bold rounded-xl border border-red-200 flex items-center space-x-1">
+                                <Icon name="warning" className="w-3.5 h-3.5 text-red-600" />
+                                <span>En Arbitraje</span>
+                              </span>
+                            ) : o.status === 'REFUNDED' ? (
+                              <span className="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-300">
+                                Reembolsado al Comprador
+                              </span>
+                            ) : (
+                              <span className="px-3 py-1.5 bg-amber-50 text-amber-800 text-xs font-bold rounded-xl border border-amber-200">
+                                Fondos en Garantía Escrow
+                              </span>
+                            )}
+                            {(o.status === 'IN_ESCROW' || o.status === 'DISPATCHED') && (
+                              <button
+                                onClick={() => setDisputeModalOrder(o)}
+                                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-medium rounded-xl border border-red-200 transition"
+                              >
+                                Abrir Disputa
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stepper de 4 Pasos Visual */}
+                        <div className="p-3 bg-slate-50/70 border border-slate-200/60 rounded-xl">
+                          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+                            Ciclo de Protección de Compra:
+                          </p>
+                          <div className="grid grid-cols-4 gap-2 text-center text-[10px]">
+                            <div className={`p-2 rounded-lg font-medium border ${stepIndex >= 1 ? 'bg-white border-emerald-300 text-emerald-900 shadow-xs' : 'bg-slate-100 border-transparent text-slate-400'}`}>
+                              <span className="block font-bold">1. Pago USD</span>
+                              <span className="text-[9px] text-slate-500">Tarjeta aprobada</span>
+                            </div>
+                            <div className={`p-2 rounded-lg font-medium border ${stepIndex >= 2 ? 'bg-white border-emerald-300 text-emerald-900 shadow-xs' : 'bg-slate-100 border-transparent text-slate-400'}`}>
+                              <span className="block font-bold">2. Escrow Stellar</span>
+                              <span className="text-[9px] text-slate-500">Fondos bloqueados</span>
+                            </div>
+                            <div className={`p-2 rounded-lg font-medium border ${stepIndex >= 3 ? 'bg-white border-emerald-300 text-emerald-900 shadow-xs' : 'bg-slate-100 border-transparent text-slate-400'}`}>
+                              <span className="block font-bold">3. Courier Aéreo</span>
+                              <span className="text-[9px] text-slate-500">Guía confirmada</span>
+                            </div>
+                            <div className={`p-2 rounded-lg font-medium border ${stepIndex >= 4 ? 'bg-white border-emerald-300 text-emerald-900 shadow-xs' : 'bg-slate-100 border-transparent text-slate-400'}`}>
+                              <span className="block font-bold">4. Liquidación BOB</span>
+                              <span className="text-[9px] text-slate-500">Depósito en banco</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Banner de Disputa Activa si corresponde */}
+                        {o.status === 'DISPUTED' && o.dispute && (
+                          <div className="p-3.5 bg-red-50/80 border border-red-200 rounded-xl text-xs space-y-1">
+                            <div className="flex items-center space-x-2 text-red-900 font-bold">
+                              <Icon name="warning" className="w-4 h-4 text-red-600 flex-shrink-0" />
+                              <span>Disputa en revisión por el Centro de Riesgo NODO</span>
+                            </div>
+                            <p className="text-red-700 text-[11px]">
+                              <strong>Motivo:</strong> {o.dispute.reason}
+                            </p>
+                            {o.dispute.note && (
+                              <p className="text-red-600 text-[11px] italic">"{o.dispute.note}"</p>
+                            )}
+                            <p className="text-[10px] text-red-500 pt-1">
+                              Los fondos de esta orden permanecen retenidos. El equipo de arbitraje en "Finanzas" está evaluando la guía de transporte.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Banner de Disputa Resuelta */}
+                        {o.disputeResolution && (
+                          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-700">
+                            <strong>Resolución de arbitraje:</strong> {o.disputeResolution.note}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </SR>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // PRODUCER VIEW
+    // ========================================================================
+    const ProducerView = () => {
+      const { producer, setProducer, orders, liveFx, refreshLiveFx, dispatchOrder, confirmDeliveryAndSettle, setTaxOrder } = useApp();
+      const [prodTab, setProdTab] = useState('ORDERS');
+      const [targetBobInput, setTargetBobInput] = useState(500);
+      const [activeDispatchId, setActiveDispatchId] = useState(null);
+      const [courier, setCourier] = useState('DHL Express');
+      const [trackingCode, setTrackingCode] = useState('DHL-BO-98231');
+      const [dispatchErr, setDispatchErr] = useState(null);
+
+      // Total retenido en Escrow en USDC y su equivalente estimado en BOB en vivo
+      const activeEscrowOrders = orders.filter(o => o.status === 'IN_ESCROW' || o.status === 'DISPATCHED');
+      const totalEscrowUsdc = Number(activeEscrowOrders.reduce((acc, o) => acc + (o.escrowUsdc || 0), 0).toFixed(2));
+      const totalEscrowBobEstimated = Number((totalEscrowUsdc * liveFx.rate).toFixed(2));
+
+      // Calculadora conectada en vivo a la tasa de Pollar
+      const netUsdNeeded = targetBobInput / liveFx.rate;
+      const finalPriceForForeigner = Number(((netUsdNeeded + 0.30) / (1 - 0.069)).toFixed(2));
+      const officialBankEquiv = Number((netUsdNeeded * 6.96).toFixed(2));
+      const extraGainedBob = Number((targetBobInput - officialBankEquiv).toFixed(2));
+      const fxGainPercent = (((liveFx.rate - 6.96) / 6.96) * 100).toFixed(1);
+
+      const handleConfirmShip = (orderId) => {
+        setDispatchErr(null);
+        const res = dispatchOrder(orderId, courier, trackingCode);
+        if (!res.ok) setDispatchErr(res.msg);
+        else setActiveDispatchId(null);
+      };
+
+      const handleSlider = (val) => {
+        setTargetBobInput(Number(val));
+      };
+
+      return (
+        <div className="space-y-6 pb-12 view-enter">
+          {/* Summary Card */}
+          <SR>
+            <div className="card p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-4">
+                <div>
+                  <span className="text-[10px] font-bold text-nodo-blue uppercase tracking-widest">Exportador Acreditado</span>
+                  <h2 className="text-lg font-bold text-nodo-dark mt-0.5">{producer.businessName}</h2>
+                  <p className="text-xs text-slate-500">Titular: {producer.legalRepresentative} • NIT: {producer.nit}</p>
+                </div>
+                <div className="text-right text-xs">
+                  <span className="text-slate-400 block text-[11px]">Cuenta para abonos en Bolivia:</span>
+                  <span className="font-bold text-slate-800">{producer.bankName}</span>
+                  <span className="font-mono text-slate-500 block text-[11px]">Cta: {producer.accountNumber}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Cobrado en Banco */}
+                <div className="p-4 bg-emerald-50/80 border border-emerald-200/60 rounded-2xl">
+                  <span className="font-semibold text-emerald-800 block text-[11px]">Cobrado en tu Banco</span>
+                  <p className="text-2xl font-bold font-mono text-emerald-900 mt-1">Bs. {producer.totalDepositedBob.toFixed(2)}</p>
+                  <p className="text-[10px] text-emerald-600 mt-0.5">Fondos libres acreditados en tu cuenta</p>
+                </div>
+
+                {/* En Garantía Escrow USDC */}
+                <div className="p-4 bg-amber-50/80 border border-amber-200/60 rounded-2xl">
+                  <div className="flex justify-between items-start">
+                    <span className="font-semibold text-amber-800 block text-[11px]">En Garantía (Escrow USDC)</span>
+                    <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-100/60 px-2 py-0.5 rounded">Stellar Contract</span>
+                  </div>
+                  <p className="text-2xl font-bold font-mono text-amber-950 mt-1">${totalEscrowUsdc.toFixed(2)} <span className="text-xs font-normal text-amber-700">USDC</span></p>
+                  <p className="text-[11px] font-bold text-amber-900 mt-0.5">~Bs. {totalEscrowBobEstimated.toFixed(2)} <span className="font-normal text-amber-700 text-[10px]">(según tasa Pollar en vivo)</span></p>
+                  <p className="text-[10px] text-amber-600 mt-1">Protegido en dólares digitales. Se liquida a BOB al entregar.</p>
+                </div>
+
+                {/* Tasa Pollar en Vivo */}
+                <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl">
+                  <div className="flex justify-between items-start">
+                    <span className="font-semibold text-slate-600 block text-[11px]">Tasa en Vivo Pollar</span>
+                    <button onClick={refreshLiveFx} className="text-[10px] text-nodo-blue hover:underline flex items-center space-x-1">
+                      <span>↺ Actualizar</span>
+                    </button>
+                  </div>
+                  <p className="text-2xl font-bold font-mono text-slate-900 mt-1">{liveFx.rate.toFixed(2)} <span className="text-xs font-normal text-slate-500">BOB/USD</span></p>
+                  <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">+{fxGainPercent}% más que oficial (6.96)</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Hora: {liveFx.updatedAt} • Micro-variación en tiempo real</p>
+                </div>
+              </div>
+            </div>
+          </SR>
+
+          {/* Sub-tabs */}
+          <div className="flex border-b border-slate-200 text-xs font-semibold space-x-6">
+            {[
+              { key: 'ORDERS', label: 'Envíos y Cobros' },
+              { key: 'CALCULATOR', label: 'Calculadora Pollar (Tiempo Real)' },
+              { key: 'BANK_KYC', label: 'Mi Banco y Documentos' },
+            ].map(t => (
+              <button
+                key={t.key}
+                onClick={() => setProdTab(t.key)}
+                className={`pb-3 border-b-2 transition ${
+                  prodTab === t.key ? 'border-nodo-blue text-nodo-blue font-bold' : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* TAB: ORDERS */}
+          {prodTab === 'ORDERS' && (
+            <div className="space-y-4 text-xs view-enter">
+              {orders.length === 0 ? (
+                <div className="card p-10 text-center text-slate-400 text-sm">
+                  No hay pedidos pendientes. Ve a la pestaña <strong className="text-nodo-blue">"Tienda USD"</strong> y haz una compra de prueba.
+                </div>
+              ) : (
+                orders.map(o => {
+                  const estBobNow = Number(((o.escrowUsdc || o.product.priceUsd) * liveFx.rate).toFixed(2));
+                  return (
+                    <SR key={o.id}>
+                      <div className="card p-5 space-y-3">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-slate-800">#{o.id}</span>
+                              <span className="font-bold text-sm text-slate-900">{o.product.name}</span>
+                            </div>
+                            <p className="text-slate-500 text-[11px] mt-0.5">
+                              Comprador: <strong>{o.buyer.name}</strong> ({o.buyer.country}) • Total cobrado: ${o.totalUsd} USD
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-2 flex-shrink-0 flex-wrap gap-y-1">
+                            <button onClick={() => setTaxOrder(o)} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition text-xs">
+                              Factura SIN
+                            </button>
+                            {o.status === 'SETTLED_BOB' ? (
+                              <span className="px-3 py-1.5 bg-emerald-50 text-emerald-800 font-bold rounded-xl border border-emerald-200 text-xs">
+                                +Bs. {o.settledBob || o.netBob} Liquidado en Banco
+                              </span>
+                            ) : o.status === 'DISPATCHED' ? (
+                              <span className="px-3 py-1.5 bg-blue-50 text-blue-800 font-bold rounded-xl border border-blue-200 text-xs">
+                                En tránsito aéreo (DHL)
+                              </span>
+                            ) : o.status === 'DISPUTED' ? (
+                              <span className="px-3 py-1.5 bg-red-50 text-red-800 font-bold rounded-xl border border-red-200 text-xs">
+                                En revisión de arbitraje
+                              </span>
+                            ) : o.status === 'REFUNDED' ? (
+                              <span className="px-3 py-1.5 bg-slate-100 text-slate-700 font-bold rounded-xl border border-slate-300 text-xs">
+                                Reembolsado
+                              </span>
+                            ) : (
+                              <span className="px-3 py-1.5 bg-amber-50 text-amber-800 font-bold rounded-xl border border-amber-200 text-xs">
+                                Fondos en Custodia USDC
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Detalle Financiero del Escrow y Liquidación */}
+                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 text-xs">
+                          {o.status === 'SETTLED_BOB' ? (
+                            <div className="text-emerald-900">
+                              <p className="font-bold">
+                                Depositado: +Bs. {o.settledBob || o.netBob} BOB (Liquidado @ {(o.settledRate || 10.48).toFixed(2)} BOB/USD vía Pollar)
+                              </p>
+                              <p className="text-[11px] text-emerald-700 font-mono">
+                                Cotización de cierre: {o.settlementQuoteId || 'QTE-DIRECT'} • Referencia bancaria ACH: {o.achRef || 'ACH-OK'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="font-bold text-slate-900">
+                                ~Bs. {estBobNow} estimado <span className="font-normal text-slate-500">(Respaldado en ${(o.escrowUsdc || o.product.priceUsd).toFixed(2)} USDC en Stellar)</span>
+                              </p>
+                              <p className="text-[11px] text-slate-500">
+                                Fondos protegidos en dólares digitales (USDC). Se convertirán a bolivianos a la tasa vigente de Pollar al confirmarse la entrega física.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Despacho Formulario */}
+                        {o.status === 'IN_ESCROW' && (
+                          activeDispatchId !== o.id ? (
+                            <div className="p-4 bg-amber-50/50 border border-amber-200/60 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-amber-900">
+                              <span className="text-xs">El cliente pagó en USD. Entrega el paquete al transportista y registra la guía para habilitar el seguimiento internacional.</span>
+                              <button
+                                onClick={() => { setActiveDispatchId(o.id); setTrackingCode(`DHL-BO-${Math.floor(10000+Math.random()*90000)}`); }}
+                                className="flex-shrink-0 px-4 py-2 bg-nodo-dark text-white font-bold rounded-xl hover:bg-slate-800 transition text-xs"
+                              >
+                                Registrar Guía de Envío
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-white border border-slate-200 rounded-2xl space-y-3">
+                              <p className="font-bold text-slate-800 text-xs">Datos de la Guía Aérea:</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <select value={courier} onChange={e => setCourier(e.target.value)} className="p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs">
+                                  <option value="DHL Express">DHL Express</option>
+                                  <option value="FedEx International">FedEx International</option>
+                                  <option value="Correos de Bolivia (EMS)">Correos de Bolivia (EMS)</option>
+                                </select>
+                                <input type="text" value={trackingCode} onChange={e => setTrackingCode(e.target.value)} placeholder="Ej: DHL-BO-98231"
+                                  className="p-2.5 border border-slate-200 rounded-xl font-mono font-bold text-xs"
+                                />
+                              </div>
+                              {dispatchErr && <p className="text-red-600 text-[11px] font-medium">{dispatchErr}</p>}
+                              <div className="flex justify-end space-x-2">
+                                <button onClick={() => setActiveDispatchId(null)} className="px-3 py-1.5 text-slate-500 text-xs">Cancelar</button>
+                                <button onClick={() => handleConfirmShip(o.id)} className="px-4 py-2 bg-nodo-dark text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition">
+                                  Confirmar Envío
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        )}
+
+                        {/* Simular Entrega */}
+                        {o.status === 'DISPATCHED' && (
+                          <div className="p-4 bg-blue-50/50 border border-blue-200/60 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-blue-900">
+                            <div>
+                              <span className="text-xs block">Guía en tránsito: <strong>{o.tracking.courier} ({o.tracking.code})</strong></span>
+                              <span className="text-[11px] text-blue-700">Al confirmar entrega, se bloqueará la tasa Pollar en vivo y se depositarán los bolivianos en tu cuenta.</span>
+                            </div>
+                            <button
+                              onClick={() => confirmDeliveryAndSettle(o.id)}
+                              className="flex-shrink-0 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition text-xs shadow-xs"
+                            >
+                              Simular Entrega (Liquidar @ {liveFx.rate.toFixed(2)} BOB)
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </SR>
+                  );
+                })
+              )}
+            </div>
+          )}
+
+          {/* TAB: CALCULATOR */}
+          {prodTab === 'CALCULATOR' && (
+            <SR>
+              <div className="card p-6 space-y-6 view-enter">
+                <div className="bg-gradient-to-r from-nodo-dark to-slate-800 text-white p-5 rounded-2xl space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] bg-emerald-400 text-nodo-dark font-bold px-2.5 py-1 rounded-lg">Ganas +{fxGainPercent}% más que en banco oficial</span>
+                    <span className="text-xs text-slate-300 font-mono">Tasa Pollar: <strong>{liveFx.rate.toFixed(2)} BOB/USD</strong></span>
+                  </div>
+                  <h3 className="text-lg font-bold mt-2">Deseas recibir Bs. {targetBobInput.toLocaleString()} líquidos en tu banco</h3>
+                  <p className="text-slate-300 text-xs leading-relaxed">
+                    A través de un banco tradicional al tipo oficial (6.96) solo recibirías Bs. {officialBankEquiv.toLocaleString()}. Con la mesa de liquidación Pollar obtienes <strong className="text-emerald-300">+Bs. {extraGainedBob.toLocaleString()} BOB adicionales</strong>.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <label className="font-bold text-sm text-slate-800 block">¿Cuántos Bolivianos líquidos quieres recibir en tu cuenta?</label>
+                    <input
+                      type="number" step="50" value={targetBobInput}
+                      onChange={e => setTargetBobInput(parseFloat(e.target.value) || 0)}
+                      className="w-full text-3xl font-bold font-mono p-4 border border-slate-200 rounded-2xl bg-slate-50 text-slate-900 focus:ring-2 focus:ring-nodo-blue/20 focus:border-nodo-blue outline-none transition"
+                    />
+                    {/* Range Slider */}
+                    <input
+                      type="range" min="100" max="5000" step="50" value={targetBobInput}
+                      onChange={e => handleSlider(e.target.value)}
+                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-nodo-blue"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400">
+                      <span>Bs. 100</span><span>Bs. 5,000</span>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-1 text-xs text-emerald-900">
+                      <p className="font-bold">✓ Sin comisiones descontadas de tu pago</p>
+                      <p className="text-[11px] text-emerald-700">
+                        La tarifa de procesamiento de tarjeta internacional (3.9% + $0.30) y el servicio de la plataforma (3%) se incorporan automáticamente en el precio final en dólares que paga el comprador extranjero.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <div className="flex justify-between items-start">
+                      <span className="font-bold text-slate-500 uppercase text-[10px] tracking-wider">Precio que verá el comprador en el extranjero:</span>
+                      <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600">Catálogo USD</span>
+                    </div>
+                    <p className="text-4xl font-bold font-mono text-slate-900">${finalPriceForForeigner} <span className="text-sm font-normal text-slate-400">USD</span></p>
+
+                    <div className="pt-3 border-t border-slate-200 space-y-2 text-slate-600 text-xs">
+                      <div className="flex justify-between"><span>Valor neto del producto en USD (Escrow):</span><span className="font-mono font-bold">${netUsdNeeded.toFixed(2)} USDC</span></div>
+                      <div className="flex justify-between"><span>Comisión tarjeta (3.9% + $0.30):</span><span className="font-mono">${(finalPriceForForeigner * 0.039 + 0.30).toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span>Comisión plataforma (3%):</span><span className="font-mono">${(finalPriceForForeigner * 0.03).toFixed(2)}</span></div>
+                      <div className="flex justify-between font-bold text-emerald-800 border-t border-slate-200 pt-2 text-sm">
+                        <span>Abono neto al entregar (@ {liveFx.rate.toFixed(2)} BOB):</span>
+                        <span className="font-mono">Bs. {targetBobInput.toLocaleString()} BOB</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-white border border-slate-200 rounded-xl text-[11px] text-slate-500 leading-relaxed">
+                      💡 <strong>Transparencia cambiaria:</strong> El precio publicado se fija en <strong>USD</strong>. Durante el tránsito del paquete, el dinero viaja protegido 1:1 en dólares digitales (USDC). Al entregarse, se aplica la tasa en vivo de Pollar de ese día, eliminando el riesgo de devaluación.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </SR>
+          )}
+
+          {/* TAB: KYC */}
+          {prodTab === 'BANK_KYC' && (
+            <SR>
+              <div className="card p-6 space-y-5 view-enter">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="font-bold text-base text-nodo-dark">Datos Bancarios y Verificación</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">El titular debe coincidir con el carnet de identidad (norma ASFI)</p>
+                  </div>
+                  <button
+                    onClick={() => setProducer(p => ({ ...p, kycStatus: p.kycStatus === 'VERIFIED' ? 'UNDER_REVIEW' : 'VERIFIED' }))}
+                    className={`px-4 py-2 border rounded-xl text-xs font-semibold transition ${
+                      producer.kycStatus === 'VERIFIED'
+                        ? 'border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100'
+                        : 'border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100'
+                    }`}
+                  >
+                    {producer.kycStatus === 'VERIFIED' ? 'Probar modo "No Verificado"' : 'Aprobar KYC'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div><label className="block text-slate-500 mb-1.5 font-medium">Razón Social</label><input type="text" readOnly value={producer.businessName} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl"/></div>
+                  <div><label className="block text-slate-500 mb-1.5 font-medium">NIT</label><input type="text" readOnly value={producer.nit} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono"/></div>
+                  <div><label className="block text-slate-500 mb-1.5 font-medium">Titular de la Cuenta</label><input type="text" readOnly value={producer.accountHolder} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold"/></div>
+                  <div><label className="block text-slate-500 mb-1.5 font-medium">Banco Nacional</label><input type="text" readOnly value={producer.bankName} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl"/></div>
+                  <div><label className="block text-slate-500 mb-1.5 font-medium">Cédula de Identidad</label><input type="text" readOnly value={producer.ci} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono"/></div>
+                  <div><label className="block text-slate-500 mb-1.5 font-medium">Régimen Tributario</label><input type="text" readOnly value="Exportador Habitual" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl"/></div>
+                </div>
+
+                {producer.kycStatus === 'VERIFIED' ? (
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 text-xs flex items-center space-x-2">
+                    <Icon name="check" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span>Documento de identidad y cuenta bancaria verificados. Los bolivianos se depositan automáticamente al confirmar entrega.</span>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-xs flex items-center space-x-2">
+                    <Icon name="warning" className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                    <span>Verificación pendiente. No podrás retirar fondos hasta completar el KYC. Haz clic en "Aprobar KYC" para simular la aprobación.</span>
+                  </div>
+                )}
+              </div>
+            </SR>
+          )}
+        </div>
+      );
+    };
+
+    const BackofficeView = () => {
+      const { orders, resolveDispute, liveFx } = useApp();
+
+      return (
+        <div className="space-y-6 pb-12 view-enter">
+          <SR>
+            <div className="card p-6 space-y-5">
+              <div>
+                <h2 className="font-bold text-xl text-nodo-dark">Mesa de Finanzas y Control de Tiempos</h2>
+                <p className="text-sm text-slate-500 mt-1">Conciliación entre el cobro internacional en USD, el Escrow en USDC y la liquidación en BOB vía Pollar</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                {[
+                  { step: 'Paso 1', title: 'Cobro USD (Tarjeta)', desc: 'Visa/Mastercard compensan en 48-72h a la cuenta recaudadora.', color: 'slate' },
+                  { step: 'Paso 2', title: 'Bóveda Escrow (USDC)', desc: 'Fondos custodiados en Stellar en dólares digitales, eliminando riesgo cambiario en tránsito.', color: 'amber' },
+                  { step: 'Paso 3', title: 'Off-Ramp Pollar (BOB)', desc: 'Al confirmar entrega, se congela cotización y se transfiere ACH al banco boliviano en segundos.', color: 'emerald' },
+                ].map((s, i) => (
+                  <SR key={i} delay={i * 100}>
+                    <div className={`p-5 rounded-2xl space-y-2 ${
+                      s.color === 'slate' ? 'bg-slate-50 border border-slate-200/60' :
+                      s.color === 'amber' ? 'bg-amber-50/80 border border-amber-200/60' :
+                      'bg-emerald-50/80 border border-emerald-200/60'
+                    }`}>
+                      <span className={`font-bold uppercase text-[10px] tracking-wider ${
+                        s.color === 'slate' ? 'text-slate-500' : s.color === 'amber' ? 'text-amber-700' : 'text-emerald-700'
+                      }`}>{s.step}</span>
+                      <p className="font-bold text-slate-900 text-sm">{s.title}</p>
+                      <p className="text-slate-600 text-[11px] leading-relaxed">{s.desc}</p>
+                    </div>
+                  </SR>
+                ))}
+              </div>
+            </div>
+          </SR>
+
+          {/* Centro de Resolución de Disputas & Arbitraje */}
+          <SR delay={150}>
+            <div className="card p-6 space-y-4 border-l-4 border-l-amber-500">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
+                    <Icon name="gavel" className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-nodo-dark">Centro de Resolución de Disputas & Arbitraje</h3>
+                    <p className="text-xs text-slate-500">Protección contra contracargos mediante custodia criptográfica Escrow</p>
+                  </div>
+                </div>
+                <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${
+                  orders.filter(o => o.status === 'DISPUTED').length > 0
+                    ? 'bg-red-100 text-red-800 animate-pulse'
+                    : 'bg-emerald-100 text-emerald-800'
+                }`}>
+                  {orders.filter(o => o.status === 'DISPUTED').length} Disputas Activas
+                </span>
+              </div>
+
+              {orders.filter(o => o.status === 'DISPUTED').length === 0 ? (
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs flex items-center space-x-2">
+                  <Icon name="check" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>Cero disputas abiertas en este momento. Todos los pagos en garantía operan con normalidad. Puedes simular una abriendo un reclamo desde la <strong>Tienda USD</strong>.</span>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.filter(o => o.status === 'DISPUTED').map(o => (
+                    <div key={o.id} className="p-4 bg-red-50/50 border border-red-200 rounded-2xl space-y-3 text-xs">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-red-200 text-red-900">#{o.id}</span>
+                            <span className="font-bold text-slate-900 text-sm">{o.product.name}</span>
+                          </div>
+                          <p className="text-slate-600 text-xs mt-1">
+                            Comprador: <strong>{o.buyer.name}</strong> ({o.buyer.country}) • Monto: <strong>${o.totalUsd} USD</strong> (Escrow: ${(o.escrowUsdc || o.product.priceUsd).toFixed(2)} USDC)
+                          </p>
+                        </div>
+                        <span className="px-2.5 py-1 bg-red-100 text-red-800 rounded-lg font-bold text-[11px]">
+                          Reclamo Activo
+                        </span>
+                      </div>
+
+                      <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
+                        <p className="text-slate-700"><strong>Motivo del Reclamo:</strong> {o.dispute?.reason}</p>
+                        {o.dispute?.note && <p className="text-slate-500 italic">"{o.dispute.note}"</p>}
+                        <p className="text-[11px] text-slate-400">
+                          <strong>Estado del Envío:</strong> {o.tracking ? `${o.tracking.courier} (Guía: ${o.tracking.code}) • ${o.tracking.status}` : 'Sin guía registrada aún por el productor'}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-1">
+                        <button
+                          onClick={() => resolveDispute(o.id, 'REFUND_BUYER')}
+                          className="px-4 py-2 bg-white hover:bg-red-50 text-red-700 font-semibold rounded-xl border border-red-300 transition text-xs"
+                        >
+                          Fallo a favor del Comprador (Reembolsar ${o.totalUsd} USD)
+                        </button>
+                        <button
+                          onClick={() => resolveDispute(o.id, 'RELEASE_PRODUCER')}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition text-xs shadow-xs"
+                        >
+                          Fallo a favor del Productor (Liquidar @ {liveFx.rate.toFixed(2)} BOB)
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </SR>
+
+          <SR delay={200}>
+            <div className="card p-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-base text-nodo-dark">Historial de Transacciones Financieras</h3>
+                <span className="text-xs font-mono text-slate-500">Tasa Pollar Actual: <strong>{liveFx.rate.toFixed(2)} BOB/USD</strong></span>
+              </div>
+              {orders.length === 0 ? (
+                <p className="text-sm text-slate-400 py-4">Sin movimientos registrados aún.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-400 text-[10px] uppercase font-bold">
+                        <th className="py-3 pr-3">Orden</th>
+                        <th className="py-3 pr-3">Comprador</th>
+                        <th className="py-3 pr-3">Cobrado (USD)</th>
+                        <th className="py-3 pr-3">Escrow (USDC)</th>
+                        <th className="py-3 pr-3">Tasa Pollar</th>
+                        <th className="py-3 pr-3">Abono Final (BOB)</th>
+                        <th className="py-3">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {orders.map(o => {
+                        const isSettled = o.status === 'SETTLED_BOB';
+                        const escrowAmt = (o.escrowUsdc || o.product.priceUsd).toFixed(2);
+                        const dynamicBob = ((o.escrowUsdc || o.product.priceUsd) * liveFx.rate).toFixed(2);
+
+                        return (
+                          <tr key={o.id} className="hover:bg-slate-50/50 transition">
+                            <td className="py-3 pr-3 font-mono font-bold text-slate-800">{o.id}</td>
+                            <td className="py-3 pr-3 text-slate-700">{o.buyer.name}</td>
+                            <td className="py-3 pr-3 font-mono font-medium">${o.totalUsd}</td>
+                            <td className="py-3 pr-3 font-mono text-amber-700 font-bold">${escrowAmt}</td>
+                            <td className="py-3 pr-3">
+                              {isSettled ? (
+                                <span className="font-mono text-emerald-800 font-semibold" title={`Quote Lock: ${o.settlementQuoteId}`}>
+                                  Fijada @ {(o.settledRate || 10.48).toFixed(2)}
+                                </span>
+                              ) : (
+                                <span className="font-mono text-slate-600 font-medium">
+                                  En vivo @ {liveFx.rate.toFixed(2)}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 pr-3 font-mono font-bold">
+                              {isSettled ? (
+                                <span className="text-emerald-700">Bs. {o.settledBob || o.netBob}</span>
+                              ) : (
+                                <span className="text-slate-500 font-normal">~Bs. {dynamicBob} <span className="text-[10px] text-slate-400">est.</span></span>
+                              )}
+                            </td>
+                            <td className="py-3">
+                              <span className={`px-2.5 py-1 rounded-lg font-semibold text-[11px] ${
+                                o.status === 'SETTLED_BOB' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                o.status === 'DISPATCHED' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                o.status === 'DISPUTED' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                o.status === 'REFUNDED' ? 'bg-slate-100 text-slate-600 border border-slate-300' :
+                                'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}>
+                                {o.status === 'SETTLED_BOB' ? 'Liquidado ✓' : o.status === 'DISPATCHED' ? 'En Envío' : o.status === 'DISPUTED' ? 'Disputa' : o.status === 'REFUNDED' ? 'Reembolsado' : 'En Garantía'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </SR>
+        </div>
+      );
+    };
+
+    const CheckoutModal = () => {
+      const { checkoutProduct, setCheckoutProduct, submitPayment, pollarFxService } = useApp();
+      const [name, setName] = useState('Michael Vance');
+      const [country, setCountry] = useState('Estados Unidos (USA)');
+      const [address, setAddress] = useState('452 Market St, San Francisco');
+      const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
+      const [isBusy, setIsBusy] = useState(false);
+      const [err, setErr] = useState(null);
+
+      // Quote Lock congelado por 10 minutos (600 segundos)
+      const [quoteLock, setQuoteLock] = useState(null);
+      const [timeLeft, setTimeLeft] = useState(600);
+
+      const totalUsd = checkoutProduct ? Number((checkoutProduct.priceUsd + checkoutProduct.shippingUsd).toFixed(2)) : 0;
+
+      // Generar Quote Lock al abrir
+      useEffect(() => {
+        if (!checkoutProduct) return;
+        const total = Number((checkoutProduct.priceUsd + checkoutProduct.shippingUsd).toFixed(2));
+        const q = pollarFxService.createQuoteLock(total, 600);
+        setQuoteLock(q);
+        setTimeLeft(600);
+      }, [checkoutProduct]);
+
+      // Contador regresivo en tiempo real
+      useEffect(() => {
+        if (!quoteLock) return;
+        const timer = setInterval(() => {
+          const remaining = Math.max(0, Math.floor((quoteLock.expiresAt - Date.now()) / 1000));
+          setTimeLeft(remaining);
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [quoteLock]);
+
+      const handleRefreshQuote = () => {
+        if (!checkoutProduct) return;
+        const total = Number((checkoutProduct.priceUsd + checkoutProduct.shippingUsd).toFixed(2));
+        const q = pollarFxService.createQuoteLock(total, 600);
+        setQuoteLock(q);
+        setTimeLeft(600);
+        setErr(null);
+      };
+
+      if (!checkoutProduct) return null;
+
+      const formatCountdown = (secs) => {
+        const m = Math.floor(secs / 60).toString().padStart(2, '0');
+        const s = (secs % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+      };
+
+      const handlePay = async (forceDecline) => {
+        if (timeLeft <= 0) {
+          setErr('La cotización de cambio ha expirado. Haz clic en "Refrescar cotización Pollar" para continuar con la tasa actual.');
+          return;
+        }
+
+        setIsBusy(true);
+        setErr(null);
+        try {
+          const res = await submitPayment({
+            product: checkoutProduct,
+            buyer: { name, country, address },
+            cardLast4: forceDecline ? '0002' : '4242',
+            forceDecline,
+            quoteLock
+          });
+          if (!res.success) setErr(res.error);
+          else setCheckoutProduct(null);
+        } finally {
+          setIsBusy(false);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="modal-enter w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-5 bg-gradient-to-r from-nodo-dark to-slate-800 text-white flex justify-between items-center">
+              <div>
+                <span className="font-bold text-sm">Pago Seguro con Tarjeta Internacional</span>
+                <p className="text-[11px] text-slate-300 mt-0.5">Conexión cifrada PCI-DSS • Enlace Escrow Stellar</p>
+              </div>
+              <button onClick={() => setCheckoutProduct(null)} className="text-slate-400 hover:text-white transition"><Icon name="x" className="w-5 h-5"/></button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              {/* Resumen Producto */}
+              <div className="flex justify-between items-center p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">{checkoutProduct.name}</h4>
+                  <p className="text-slate-500">${checkoutProduct.priceUsd} producto + ${checkoutProduct.shippingUsd} flete DHL</p>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold text-lg text-slate-900 font-mono">${totalUsd} <span className="text-xs font-normal text-slate-500">USD</span></span>
+                </div>
+              </div>
+
+              {/* Insignia de Quote Lock de Pollar */}
+              {timeLeft > 0 ? (
+                <div className="p-3 bg-blue-50/80 border border-blue-200/80 rounded-xl flex items-center justify-between text-xs text-blue-900">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse flex-shrink-0"></span>
+                    <span>
+                      Cotización bloqueada por <strong className="font-mono text-sm">{formatCountdown(timeLeft)}</strong>
+                    </span>
+                  </div>
+                  <div className="text-right font-mono text-[11px]">
+                    <span className="text-blue-700 font-bold block">1 USD = {quoteLock?.rate.toFixed(2)} BOB</span>
+                    <span className="text-[9px] text-blue-500">Ref: {quoteLock?.quoteId}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-amber-900">
+                  <div className="flex items-center space-x-2">
+                    <Icon name="warning" className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                    <span>Cotización de 10 min expirada por seguridad de mercado.</span>
+                  </div>
+                  <button
+                    onClick={handleRefreshQuote}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition text-[11px] whitespace-nowrap shadow-xs"
+                  >
+                    Refrescar cotización Pollar
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="font-semibold text-slate-700 block">1. Nombre y Dirección de Entrega:</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-nodo-blue/20 outline-none transition" placeholder="Nombre Completo"/>
+                <input type="text" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-nodo-blue/20 outline-none transition" placeholder="País"/>
+                <input type="text" value={address} onChange={e => setAddress(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-nodo-blue/20 outline-none transition" placeholder="Dirección"/>
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-semibold text-slate-700 block">2. Tarjeta Internacional:</label>
+                <div className="p-4 bg-gradient-to-br from-slate-800 to-nodo-dark text-white rounded-xl font-mono space-y-3">
+                  <input type="text" value={cardNumber} onChange={e => setCardNumber(e.target.value)} className="w-full bg-slate-700/60 p-3 rounded-xl text-emerald-300 font-bold border border-slate-600 focus:border-emerald-400 outline-none transition"/>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" value="11/28" readOnly className="bg-slate-700/60 p-2.5 rounded-xl text-center border border-slate-600"/>
+                    <input type="password" value="892" readOnly className="bg-slate-700/60 p-2.5 rounded-xl text-center border border-slate-600"/>
+                  </div>
+                </div>
+              </div>
+
+              {err && <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl font-medium">{err}</div>}
+
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 flex items-center space-x-2">
+                <Icon name="shield" className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span><strong>Garantía Escrow Protegida:</strong> Tu dinero queda en custodia segura ($ USDC) hasta que DHL entregue en tu puerta.</span>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div className="flex space-x-2 w-full sm:w-auto">
+                <button
+                  disabled={isBusy || timeLeft <= 0}
+                  onClick={() => handlePay(false)}
+                  className="flex-1 sm:flex-initial px-5 py-2.5 bg-nodo-dark hover:bg-slate-800 text-white font-bold rounded-xl transition disabled:opacity-40"
+                >
+                  {isBusy ? 'Procesando...' : `Pagar $${totalUsd} USD`}
+                </button>
+                <button
+                  disabled={isBusy || timeLeft <= 0}
+                  onClick={() => handlePay(true)}
+                  className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-xl border border-red-200 transition disabled:opacity-40"
+                >
+                  Simular Rechazo
+                </button>
+              </div>
+              <button onClick={() => setCheckoutProduct(null)} className="text-slate-400 hover:text-slate-700 text-xs transition">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const ReceiptModal = () => {
+      const { receiptOrder, setReceiptOrder, liveFx } = useApp();
+      if (!receiptOrder) return null;
+
+      const o = receiptOrder;
+      const date = new Date(o.date);
+      const isSettled = o.status === 'SETTLED_BOB';
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="modal-enter w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 bg-gradient-to-r from-nodo-dark to-slate-800 text-white flex justify-between items-center">
+              <span className="font-bold text-sm">Comprobante Oficial de Compra & Escrow</span>
+              <button onClick={() => setReceiptOrder(null)} className="text-slate-400 hover:text-white transition"><Icon name="x" className="w-5 h-5"/></button>
+            </div>
+
+            <div className="overflow-y-auto p-6 space-y-5" id="print-area">
+              <div className="border border-slate-200 rounded-xl p-5 space-y-4 text-xs">
+                {/* Header */}
+                <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+                  <div>
+                    <img src="./assets/imagotipo.png" alt="NODES" className="h-8 w-auto object-contain mb-2" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <h4 className="font-extrabold text-base text-nodo-dark">NODES</h4>
+                    <p className="text-slate-400 text-[11px]">Pasarela Transfronteriza (Stellar USDC ↔ Pollar)</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono font-bold text-slate-800">{o.id}</p>
+                    <p className="text-slate-400 text-[11px]">{date.toLocaleDateString('es-BO')} • {date.toLocaleTimeString('es-BO', { hour12: false })}</p>
+                  </div>
+                </div>
+
+                {/* Auth Code & Quote Lock */}
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <p className="text-[10px] text-emerald-600 font-semibold uppercase">Autorización Tarjeta</p>
+                    <p className="font-mono font-bold text-emerald-900 text-base mt-0.5">{o.authCode}</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                    <p className="text-[10px] text-blue-600 font-semibold uppercase">Quote Lock Pollar</p>
+                    <p className="font-mono font-bold text-blue-900 text-sm mt-0.5">{o.checkoutQuoteId || 'QTE-DIRECT'}</p>
+                    <p className="text-[9px] text-blue-600 font-mono">1 USD = {(o.checkoutRate || 10.48).toFixed(2)} BOB</p>
+                  </div>
+                </div>
+
+                {/* Buyer Info */}
+                <div className="grid grid-cols-2 gap-3 text-[11px]">
+                  <div><span className="text-slate-400 block">Comprador:</span><span className="font-semibold text-slate-800">{o.buyer.name}</span></div>
+                  <div><span className="text-slate-400 block">País:</span><span className="font-semibold text-slate-800">{o.buyer.country}</span></div>
+                  <div className="col-span-2"><span className="text-slate-400 block">Dirección:</span><span className="font-semibold text-slate-800">{o.buyer.address || 'No especificada'}</span></div>
+                </div>
+
+                {/* Product */}
+                <div className="border-t border-slate-100 pt-3">
+                  <table className="w-full text-[11px]">
+                    <thead><tr className="text-slate-400 uppercase font-bold text-[9px]"><th className="text-left pb-2">Producto</th><th className="text-right pb-2">Precio</th><th className="text-right pb-2">Envío</th><th className="text-right pb-2">Total USD</th></tr></thead>
+                    <tbody><tr><td className="py-2 font-semibold text-slate-800">{o.product.name}</td><td className="py-2 text-right font-mono">${o.product.priceUsd}</td><td className="py-2 text-right font-mono">${o.product.shippingUsd}</td><td className="py-2 text-right font-mono font-bold">${o.totalUsd}</td></tr></tbody>
+                  </table>
+                </div>
+
+                {/* Trazabilidad Financiera Pollar & Escrow */}
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-[11px]">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Monto retenido en Escrow:</span>
+                    <span className="font-mono font-bold text-slate-900">${(o.escrowUsdc || o.product.priceUsd).toFixed(2)} USDC (Stellar)</span>
+                  </div>
+                  {isSettled ? (
+                    <div className="flex justify-between border-t border-slate-200 pt-1 text-emerald-800 font-bold">
+                      <span>Liquidación Definitiva en Banco:</span>
+                      <span className="font-mono">Bs. {o.settledBob} BOB (@ {o.settledRate} BOB/USD)</span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between border-t border-slate-200 pt-1 text-slate-700">
+                      <span>Liquidación estimada al entregar:</span>
+                      <span className="font-mono font-semibold">~Bs. {((o.escrowUsdc || o.product.priceUsd) * liveFx.rate).toFixed(2)} BOB (@ {liveFx.rate.toFixed(2)})</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Status */}
+                <div className="border-t border-slate-100 pt-3 flex items-center justify-between">
+                  <div className="text-[11px]">
+                    <span className="text-slate-400 block">Estado del pedido:</span>
+                    <span className={`font-bold ${isSettled ? 'text-emerald-700' : o.status === 'DISPATCHED' ? 'text-blue-700' : 'text-amber-700'}`}>
+                      {isSettled ? 'Entregado y liquidado en cuenta bancaria' : o.status === 'DISPATCHED' ? 'En tránsito aéreo internacional' : 'Fondos en custodia garantizada (USDC)'}
+                    </span>
+                  </div>
+                  <Icon name="shield" className="w-6 h-6 text-emerald-500" />
+                </div>
+
+                {o.tracking && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-[11px] text-blue-900">
+                    <span className="font-semibold">Guía de transporte:</span> {o.tracking.courier} — <span className="font-mono font-bold">{o.tracking.code}</span>
+                  </div>
+                )}
+
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg text-[9px] font-mono text-slate-400 break-all">
+                  Hash Contrato Stellar: {o.stellarHash}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-2">
+              <button onClick={() => window.print()} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition text-xs flex items-center space-x-1.5">
+                <Icon name="printer" className="w-3.5 h-3.5" /><span>Imprimir</span>
+              </button>
+              <button onClick={() => setReceiptOrder(null)} className="px-5 py-2 bg-nodo-dark text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const TaxInvoiceModal = () => {
+      const { taxOrder, setTaxOrder, producer } = useApp();
+      if (!taxOrder) return null;
+      const equivBob = (taxOrder.totalUsd * 6.96).toFixed(2);
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="modal-enter w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 bg-gradient-to-r from-nodo-dark to-slate-800 text-white flex justify-between items-center">
+              <span className="font-bold text-sm">Factura Comercial de Exportación (Tasa Cero IVA)</span>
+              <button onClick={() => setTaxOrder(null)} className="text-slate-400 hover:text-white transition"><Icon name="x" className="w-5 h-5"/></button>
+            </div>
+
+            <div className="overflow-y-auto p-6 space-y-4 text-xs" id="print-area">
+              <div className="border border-slate-200 p-5 rounded-xl space-y-4">
+                <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+                  <div>
+                    <img src="./assets/imagotipo.png" alt="NODES" className="h-7 w-auto object-contain mb-2" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <h4 className="font-bold text-sm text-nodo-dark">{producer.businessName}</h4>
+                    <p className="text-slate-500 text-[11px]">Casa Matriz: La Paz, Bolivia • NIT: {producer.nit}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-emerald-700">TASA CERO IVA (LEY 843)</p>
+                    <p className="text-[11px] font-mono text-slate-500">FAC-EXP-{taxOrder.id}</p>
+                  </div>
+                </div>
+
+                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono break-all text-slate-500">
+                  CUF: 1029384029B0F9A4819238491C82390192834019283401928340192834019283
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl text-[11px]">
+                  <div><strong>Importador Extranjero:</strong><p>{taxOrder.buyer.name} ({taxOrder.buyer.country})</p></div>
+                  <div><strong>Fecha de Emisión:</strong><p>{new Date(taxOrder.date).toLocaleDateString('es-BO')}</p></div>
+                </div>
+
+                <table className="w-full text-left text-[11px]">
+                  <thead><tr className="border-b border-slate-200 font-bold uppercase text-slate-400 text-[10px]"><th className="py-2">Producto</th><th className="py-2 text-right">FOB USD</th><th className="py-2 text-right">Flete USD</th><th className="py-2 text-right">Total USD</th></tr></thead>
+                  <tbody><tr><td className="py-3 text-slate-800">{taxOrder.product.name}</td><td className="py-3 text-right font-mono">${taxOrder.product.priceUsd}</td><td className="py-3 text-right font-mono">${taxOrder.product.shippingUsd}</td><td className="py-3 text-right font-mono font-bold">${taxOrder.totalUsd}</td></tr></tbody>
+                </table>
+
+                <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                  <p className="text-[10px] text-emerald-700 font-bold">EXENTO DE DÉBITO FISCAL POR EXPORTACIÓN DEFINITIVA</p>
+                  <p className="font-mono text-xs">Equiv. Oficial (TC 6.96): <strong>Bs. {equivBob}</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-2">
+              <button onClick={() => window.print()} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition text-xs flex items-center space-x-1.5">
+                <Icon name="printer" className="w-3.5 h-3.5" /><span>Imprimir</span>
+              </button>
+              <button onClick={() => setTaxOrder(null)} className="px-5 py-2 bg-nodo-dark text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // SOCIAL SHARE MODAL
+    // ========================================================================
+    const SocialShareModal = () => {
+      const { socialShareProduct, setSocialShareProduct, setCheckoutProduct } = useApp();
+      const [copied, setCopied] = useState(false);
+
+      if (!socialShareProduct) return null;
+
+      const directLink = `${window.location.origin}/pay/${socialShareProduct.id}`;
+      const waText = `¡Hola! Me interesa comprar "${socialShareProduct.name}" con envío directo a mi país. Enlace de pago: ${directLink}`;
+
+      const handleCopy = () => {
+        navigator.clipboard?.writeText(directLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="modal-enter w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-sm text-nodo-dark">Compartir en Redes</span>
+              <button onClick={() => setSocialShareProduct(null)} className="text-slate-400 hover:text-slate-700 transition"><Icon name="x" className="w-4 h-4"/></button>
+            </div>
+
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center space-x-3">
+              <img src={socialShareProduct.imageUrl} className="w-14 h-14 object-cover rounded-xl"/>
+              <div className="text-xs">
+                <p className="font-bold text-slate-900">{socialShareProduct.name}</p>
+                <p className="text-slate-500">${socialShareProduct.priceUsd} USD • Envío incluido</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <p className="text-slate-500">Enlace directo para tu bio de Instagram o WhatsApp:</p>
+              <div className="flex space-x-2">
+                <input type="text" readOnly value={directLink} className="flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px]"/>
+                <button onClick={handleCopy} className="px-4 py-2.5 bg-nodo-dark text-white font-semibold rounded-xl hover:bg-slate-800 transition">
+                  {copied ? '¡Copiado!' : 'Copiar'}
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100 pt-3 space-y-2">
+              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`} target="_blank" rel="noreferrer"
+                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-[#25D366] text-white font-bold rounded-xl hover:opacity-90 transition text-xs">
+                <Icon name="whatsapp" className="w-4 h-4"/><span>Enviar por WhatsApp</span>
+              </a>
+              <button
+                onClick={() => {
+                  const p = socialShareProduct;
+                  setSocialShareProduct(null);
+                  setCheckoutProduct(p);
+                }}
+                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold rounded-xl transition text-xs flex items-center justify-center space-x-1.5"
+              >
+                <span>Probar Enlace de Pago Directo (Checkout)</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // HOW IT WORKS MODAL
+    // ========================================================================
+    const HowItWorksModal = () => {
+      const { showHowItWorks, setShowHowItWorks } = useApp();
+      if (!showHowItWorks) return null;
+
+      const steps = [
+        { n: 1, title: 'Tú fijas tu precio en Bolivianos (BOB)', desc: 'Dices: "Quiero 500 Bs limpios en mi cuenta". La plataforma calcula el precio en dólares para el cliente en el extranjero.', color: 'slate' },
+        { n: 2, title: 'El extranjero paga con su tarjeta de crédito', desc: 'El dinero queda en una caja de seguridad digital (garantía) para que el comprador esté tranquilo.', color: 'slate' },
+        { n: 3, title: 'Llevas el paquete a DHL o Correos', desc: 'Escribes tu código de rastreo. El comprador puede ver por dónde vuela su pedido.', color: 'slate' },
+        { n: 4, title: 'El cartero entrega y el dinero cae a tu banco', desc: 'Se deposita directamente a tu cuenta en BNB, BCP, Banco Unión o QR al tipo de cambio más alto.', color: 'emerald' },
+      ];
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="modal-enter w-full max-w-xl bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 space-y-5">
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-nodo-dark text-base">¿Cómo funciona para gente normal?</h3>
+              <button onClick={() => setShowHowItWorks(false)} className="text-slate-400 hover:text-slate-700 transition"><Icon name="x" className="w-5 h-5"/></button>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed">
+              No necesitas saber de blockchain ni dólares electrónicos. Todo se hace de forma automática para que vender al exterior sea tan fácil como cobrar por QR en Bolivia.
+            </p>
+
+            <div className="space-y-3">
+              {steps.map(s => (
+                <div key={s.n} className={`flex space-x-3 p-4 rounded-xl border ${s.color === 'emerald' ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
+                  <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 ${s.color === 'emerald' ? 'bg-emerald-700 text-white' : 'bg-nodo-dark text-white'}`}>{s.n}</span>
+                  <div>
+                    <h4 className={`font-bold text-xs ${s.color === 'emerald' ? 'text-emerald-900' : 'text-slate-900'}`}>{s.title}</h4>
+                    <p className={`text-[11px] mt-0.5 ${s.color === 'emerald' ? 'text-emerald-700' : 'text-slate-500'}`}>{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button onClick={() => setShowHowItWorks(false)} className="px-5 py-2.5 bg-nodo-dark text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition">
+                Entendido, ¡vamos a probarlo!
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // ARDUINO ENGINE DRAWER (Slide from Right)
+    // ========================================================================
+    const ArduinoEngineDrawer = () => {
+      const { isDrawerOpen, setIsDrawerOpen, logs } = useApp();
+      const [closing, setClosing] = useState(false);
+
+      const handleClose = () => {
+        setClosing(true);
+        setTimeout(() => { setIsDrawerOpen(false); setClosing(false); }, 300);
+      };
+
+      if (!isDrawerOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 overflow-hidden font-mono text-xs">
+          <div onClick={handleClose} className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"/>
+
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-6">
+            <div className={`w-screen max-w-2xl bg-[#0A0E1A] text-slate-200 border-l border-[rgba(165,177,194,0.18)] shadow-2xl flex flex-col ${closing ? '' : 'drawer-enter'}`}
+              style={closing ? { animation: 'slideOutRight 0.3s ease-in both' } : {}}>
+
+              {/* Header */}
+              <div className="p-4 bg-[#070A12] border-b border-[#00F0FF]/20 flex justify-between items-center">
+                <div className="flex items-center space-x-2.5 text-[#00F0FF]">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#00F0FF] animate-ping"></span>
+                  <span className="font-bold text-sm">MOTOR INVISIBLE • NODES CORE TESTNET</span>
+                  <span className="text-[10px] bg-[#12182B] text-[#00F0FF] px-2 py-0.5 rounded-lg border border-[#00F0FF]/30 font-mono">115200 BAUD</span>
+                </div>
+                <button onClick={handleClose} className="text-[#A5B1C2] hover:text-white transition">✕</button>
+              </div>
+
+              {/* Pin Diagram */}
+              <div className="p-4 bg-[#1F242C] border-b border-slate-800/50 space-y-2">
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Diagrama de Pines Lógicos:</p>
+                <div className="grid grid-cols-4 gap-2 text-[10px] text-center">
+                  {[
+                    { pin: 'PIN_A0', label: 'Stripe USD', color: 'blue' },
+                    { pin: 'PIN_FX', label: 'Pollar Quote', color: 'yellow' },
+                    { pin: 'MCU_D11', label: 'Stellar USDC', color: 'teal' },
+                    { pin: 'RELAY_D09', label: 'Pollar BOB', color: 'emerald' },
+                  ].map(p => (
+                    <div key={p.pin} className={`p-2.5 bg-[#171B21] border rounded-lg ${
+                      p.color === 'blue' ? 'border-blue-800/60 text-blue-400' :
+                      p.color === 'teal' ? 'border-teal-800/60 text-teal-400' :
+                      p.color === 'amber' ? 'border-amber-800/60 text-amber-400' :
+                      'border-emerald-800/60 text-emerald-400'
+                    }`}>
+                      <span className="block font-bold">{p.pin}</span>
+                      <span className="text-[9px] text-slate-500">{p.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Serial Monitor */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                <p className="text-[10px] text-slate-500 pb-1 border-b border-slate-800/50">
+                  COM3 SERIAL MONITOR (Eventos en Tiempo Real):
+                </p>
+                {logs.map(l => (
+                  <div key={l.id} className="p-3 bg-[#0F1318] border border-slate-800/50 rounded-lg space-y-0.5">
+                    <div className="flex justify-between text-[10px] text-slate-500">
+                      <span className={`font-bold ${l.type === 'ERROR' ? 'text-red-400' : l.type === 'SUCCESS' ? 'text-emerald-400' : 'text-teal-400'}`}>[{l.pin}]</span>
+                      <span>{l.time}</span>
+                    </div>
+                    <p className={`font-bold text-[11px] ${l.type === 'ERROR' ? 'text-red-300' : 'text-white'}`}>{l.title}</p>
+                    <p className="text-slate-400 text-[11px] font-sans">{l.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="p-3 bg-[#0F1318] border-t border-slate-800/50 flex justify-between items-center text-[11px] text-slate-500">
+                <span>Stellar Horizon SCP: OK • Fee: 0.00001 XLM</span>
+                <button onClick={handleClose} className="px-3 py-1.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // MODAL DE DISPUTAS / REPORTAR PROBLEMA (COMPRADOR)
+    // ========================================================================
+    const DisputeModal = () => {
+      const { disputeModalOrder, setDisputeModalOrder, openDispute } = useApp();
+      const [reason, setReason] = useState('El producto no ha llegado en la fecha estimada');
+      const [note, setNote] = useState('');
+      const [isSubmitting, setIsSubmitting] = useState(false);
+
+      if (!disputeModalOrder) return null;
+
+      const reasonsList = [
+        'El producto no ha llegado en la fecha estimada',
+        'El producto llegó con daños o defectuoso',
+        'El contenido no coincide con la descripción del catálogo',
+        'El código de rastreo del courier no registra movimientos',
+        'Sospecha de extravío en aduana aérea'
+      ];
+
+      const handleConfirm = () => {
+        setIsSubmitting(true);
+        setTimeout(() => {
+          openDispute(disputeModalOrder.id, reason, note);
+          setIsSubmitting(false);
+          setDisputeModalOrder(null);
+        }, 400);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="modal-enter w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-5 bg-gradient-to-r from-red-900 to-slate-900 text-white flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <Icon name="warning" className="w-5 h-5 text-red-400" />
+                <span className="font-bold text-sm">Reportar Problema / Abrir Disputa</span>
+              </div>
+              <button onClick={() => setDisputeModalOrder(null)} className="text-slate-400 hover:text-white transition">
+                <Icon name="x" className="w-5 h-5"/>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-900">
+                <p className="font-bold">Protección de Compra NODO Escrow</p>
+                <p className="text-[11px] text-red-700 mt-0.5">
+                  Al abrir este reclamo, los fondos de la orden <strong>#{disputeModalOrder.id}</strong> quedan temporalmente congelados en el contrato hasta que nuestro equipo de mediación revise la evidencia de entrega con el transportista.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-slate-800 block">Selecciona el motivo principal:</label>
+                <div className="space-y-2 pt-1">
+                  {reasonsList.map((r, i) => (
+                    <label key={i} className="flex items-center space-x-2.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                      <input
+                        type="radio"
+                        name="disputeReason"
+                        value={r}
+                        checked={reason === r}
+                        onChange={e => setReason(e.target.value)}
+                        className="accent-red-600"
+                      />
+                      <span className="text-slate-800 text-[11px] font-medium">{r}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-slate-800 block">Comentarios adicionales o detalles del caso:</label>
+                <textarea
+                  value={note}
+                  onChange={e => setNote(e.target.value)}
+                  placeholder="Describe brevemente qué ocurrió para agilizar la revisión..."
+                  rows={3}
+                  className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 outline-none focus:ring-2 focus:ring-red-500/20 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+              <button
+                onClick={() => setDisputeModalOrder(null)}
+                className="px-4 py-2 text-slate-500 hover:text-slate-800 transition text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={isSubmitting}
+                onClick={handleConfirm}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition disabled:opacity-50 shadow-xs"
+              >
+                {isSubmitting ? 'Registrando...' : 'Confirmar y Abrir Disputa'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ========================================================================
+    // APP ROOT
+    // ========================================================================
+    const App = () => {
+      const { viewMode } = useApp();
+
+      return (
+        <div className="min-h-screen flex flex-col bg-white">
+          <TopNavbar />
+
+          <main className="flex-1">
+            {viewMode === 'HOME' && <HomeView />}
+            <div className={viewMode !== 'HOME' ? 'max-w-7xl w-full mx-auto px-4 sm:px-6 pt-6' : 'hidden'}>
+              {viewMode === 'BUYER' && <BuyerView />}
+              {viewMode === 'PRODUCER' && <ProducerView />}
+              {viewMode === 'BACKOFFICE' && <BackofficeView />}
+            </div>
+          </main>
+
+          <ArduinoEngineDrawer />
+          <HowItWorksModal />
+          <SocialShareModal />
+          <CheckoutModal />
+          <ReceiptModal />
+          <TaxInvoiceModal />
+          <DisputeModal />
+
+          <footer className="bg-white border-t border-[rgba(165,177,194,0.25)] py-8 mt-12 text-center">
+            <img src="./assets/logotipo.png" alt="NODES" className="h-6 w-auto mx-auto mb-2 opacity-90 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <span className="w-2 h-2 rounded-full bg-[#00F0FF]"></span>
+              <p className="font-extrabold text-sm text-[#0A0E1A] tracking-wider">NODES</p>
+            </div>
+            <p className="text-[11px] text-[#A5B1C2] mt-0.5">Pasarela Transfronteriza de Pagos & E-commerce • Bolivia ↔ Global</p>
+            <p className="text-[10px] text-slate-400 mt-0.5 font-mono">Infraestructura Web3 Invisible (Stellar USDC ↔ Pollar) • Compatible Apache / XAMPP</p>
+          </footer>
+        </div>
+      );
+    };
+
+    // Mount
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <AppProvider>
+        <App />
+      </AppProvider>
+    );
+  </script>
+
+</body>
+</html>
