@@ -249,7 +249,7 @@
         ];
       });
 
-      const [marketFx, setMarketFx] = useState(10.50);
+      const [marketFx, setMarketFx] = useState(11.98);
 
       useEffect(() => {
         localStorage.setItem('nodo_v2_prods', JSON.stringify(products));
@@ -926,7 +926,7 @@
       // Cálculo Inverso Fácil de entender
       const netUsdNeeded = targetBobInput / marketFx;
       const finalPriceForForeigner = Number(((netUsdNeeded + 0.30) / (1 - 0.069)).toFixed(2));
-      const officialBankEquiv = Number((netUsdNeeded * 6.96).toFixed(2));
+      const officialBankEquiv = Number((netUsdNeeded * 11.98).toFixed(2));
       const extraGainedBob = Number((targetBobInput - officialBankEquiv).toFixed(2));
 
       const handleConfirmShip = (orderId) => {
