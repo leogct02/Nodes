@@ -4,7 +4,7 @@ Desarrollo de pasarela financiera en Bolivia
 
 <div align="center">
 
-<img src="assets/banner.svg" alt="Plataforma de Pagos de Exportación: cobra en dólares, recibe en bolivianos" width="100%">
+<img src="assets/banner-andino-divisas.svg" alt="Plataforma de Pagos de Exportación: cobra en dólares, recibe en bolivianos" width="100%">
 
 <br>
 
