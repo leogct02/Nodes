@@ -1,5 +1,5 @@
 # Nodes
-Desarrollo de pasarela financiera en Bolivia
+Prototipo piloto de pasarela financiera y habilitador de comercio transfronterizo en Bolivia
 
 
 <div align="center">
@@ -8,13 +8,13 @@ Desarrollo de pasarela financiera en Bolivia
 
 <br>
 
-El comprador internacional paga en **USD** con su tarjeta habitual.<br>
-El productor boliviano recibe **BOB** en su cuenta bancaria o QR, a un tipo de cambio de mercado.<br>
+El comprador internacional paga con su tarjeta habitual (en este piloto se modela el cobro en **USD** como divisa de ejemplo).<br>
+El productor boliviano recibe **BOB** en su cuenta bancaria, referenciado a un tipo de cambio de mercado ilustrativo.<br>
 La tecnología blockchain trabaja en segundo plano y nadie tiene que verla.
 
 <br>
 
-![Estado](https://img.shields.io/badge/ESTADO-DEMO%20FUNCIONAL-2da44e?style=for-the-badge)
+![Estado](https://img.shields.io/badge/ESTADO-PROTOTIPO%20PILOTO-2da44e?style=for-the-badge)
 ![Stellar](https://img.shields.io/badge/STELLAR-TESTNET-8957e5?style=for-the-badge&logo=stellar&logoColor=white)
 ![Stripe](https://img.shields.io/badge/STRIPE-SANDBOX-635bff?style=for-the-badge&logo=stripe&logoColor=white)
 ![Hecho en](https://img.shields.io/badge/HECHO%20EN-BOLIVIA-d52b1e?style=for-the-badge)
@@ -50,14 +50,14 @@ La tecnología blockchain trabaja en segundo plano y nadie tiene que verla.
 
 ## 🎯 Resumen
 
-Esta aplicación es una **demo funcional** de una pasarela de pagos que conecta a compradores de Estados Unidos y Europa con productores bolivianos de alto valor: café de especialidad, textiles de alpaca, singani y cuero curtido.
+Esta aplicación es un **prototipo piloto** de una pasarela financiera y habilitador de comercio transfronterizo orientado a conectar productores y microcomercios bolivianos con compradores internacionales (con un enfoque inicial ilustrativo en mercados como Estados Unidos y Europa). El catálogo precargado —café de especialidad, textiles de alpaca, singani y cuero curtido— funciona como ejemplo representativo de bienes exportables de alto valor, no como una restricción de rubro ni de escala.
 
 Tiene tres vistas que comparten un **estado global sincronizado en tiempo real**:
 
-| Vista | Quién la usa | Moneda | Qué puede hacer |
+| Vista | Quién la usa | Moneda en el piloto | Qué puede hacer |
 |---|---|---|---|
-| 🔵 **Comprador** | Cliente en el extranjero | USD | Explorar el catálogo, pagar, seguir su pedido y abrir disputas |
-| 🟢 **Productor** | Exportador boliviano | BOB | Verificar su identidad, fijar precios, despachar, facturar y cobrar |
+| 🔵 **Comprador** | Cliente en el extranjero | USD *(ejemplo de divisa)* | Explorar el catálogo de prueba, pagar, seguir su pedido y abrir disputas |
+| 🟢 **Productor** | Exportador / microcomercio en Bolivia | BOB | Verificar su identidad, fijar precios, despachar, facturar y cobrar |
 | 🟠 **Backoffice** | Mesa de finanzas y riesgo | USD, USDC y BOB | Gestionar liquidez, descalce financiero y arbitraje de contracargos |
 
 Además incluye un panel opcional, el 🟣 **Modo Evaluador (Ver Motor Invisible)**, que muestra la infraestructura técnica en vivo.
@@ -82,8 +82,8 @@ Los mismos colores se usan en todos los diagramas de este documento:
 
 | | ❌ Sin la plataforma | ✅ Con la plataforma |
 |---|---|---|
-| 🔵 **Comprador** | Transferencias internacionales lentas y costosas, sin protección de compra | Paga con tarjeta o Apple Pay, con garantía de compra protegida |
-| 🟢 **Productor** | Recibe BOB al tipo de cambio oficial (10.50) tras trámites bancarios largos | Recibe BOB a un tipo de cambio de mercado (ejemplo de demo: 11.98) |
+| 🔵 **Comprador** | Transferencias internacionales lentas y costosas, sin protección de compra | Paga con tarjeta o billetera digital compatible, con garantía de compra protegida |
+| 🟢 **Productor** | Recibe BOB al tipo de cambio oficial de referencia (ej. 10.50) tras trámites bancarios largos | Recibe BOB a un tipo de cambio de mercado ilustrativo (ej. 11.98) |
 | 🟠 **Confianza** | El comprador paga y espera a ciegas | El dinero queda en garantía (Escrow) hasta confirmar la entrega |
 | 🟣 **Cumplimiento** | Difícil justificar el origen de los fondos | Factura de exportación y verificación KYC integradas |
 
@@ -101,7 +101,7 @@ Los mismos colores se usan en todos los diagramas de este documento:
 
 ## 🔄 Cómo funciona
 
-El recorrido completo de una venta, en tres fases:
+El recorrido completo de una venta, en tres fases (ilustrado con los parámetros del prototipo piloto):
 
 ```mermaid
 sequenceDiagram
@@ -116,7 +116,7 @@ sequenceDiagram
 
     rect rgba(47, 111, 235, 0.18)
     Note over B,E: Fase 1 · Pago y garantía
-    B->>S: Paga en USD con tarjeta o Apple Pay
+    B->>S: Paga en USD con tarjeta o billetera digital
     S->>E: Cobro aprobado, USDC bloqueado en Claimable Balance
     end
 
@@ -147,17 +147,17 @@ El sistema se divide en tres bloques: lo que ve el comprador, el motor invisible
 ```mermaid
 flowchart LR
     subgraph Comprador ["🔵 1. Comprador internacional"]
-        C1["🛍️ Tienda o enlace directo"] --> C2["💳 Checkout USD<br/>Tarjeta o Apple Pay"]
+        C1["🛍️ Tienda o enlace directo"] --> C2["💳 Checkout USD<br/>Tarjeta o billetera digital"]
     end
 
     subgraph Pasarela ["🟣 2. Motor invisible: Web3 y FX"]
         P1["💵 Cobro USD<br/>Stripe Sandbox"] --> P2["🔒 Stellar USDC<br/>Claimable Balance como Escrow"]
-        P2 --> P3["📦 Webhook de courier<br/>DHL o FedEx, más control KYC"]
+        P2 --> P3["📦 Webhook de courier<br/>DHL, FedEx, UPS o Correos + KYC"]
         P3 --> P4["🔁 API Pollar o Mesa de Pagos<br/>USDC a BOB"]
     end
 
     subgraph Productor ["🟢 3. Productor boliviano"]
-        PR1["🏦 Cuenta bancaria o QR<br/>BNB, BCP, BMSC, Bisa, Unión"]
+        PR1["🏦 Cuenta bancaria o QR<br/>Entidades financieras en Bolivia"]
         PR2["🧾 Factura de exportación SIN<br/>Tasa cero de IVA"]
     end
 
